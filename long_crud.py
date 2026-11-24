@@ -1,25 +1,17 @@
-import importlib.util
-import os
 from datetime import datetime
 
-# =====================================================================
-# KẾT NỐI TRỰC TIẾP VỚI FILE 'gym_management (1).py' CỦA AN
-# =====================================================================
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-BASE_FILE_PATH = os.path.join(CURRENT_DIR, "gym_management.py")
-
-spec = importlib.util.spec_from_file_location("base_gym", BASE_FILE_PATH)
-base_gym = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(base_gym)
-
-Plan = base_gym.Plan
-Trainer = base_gym.Trainer
-Member = base_gym.Member
-BasicMember = base_gym.BasicMember
-PremiumMember = base_gym.PremiumMember
-WorkoutSession = base_gym.WorkoutSession
-Transaction = base_gym.Transaction
-BaseGymManager = base_gym.GymManager
+# Dùng import thông thường thay vì nạp file bằng importlib
+# (cách cũ trỏ tới tên file 'gym_management (1).py' và chạy gym_management.py hai lần).
+from gym_management import (
+    Plan,
+    Trainer,
+    Member,
+    BasicMember,
+    PremiumMember,
+    WorkoutSession,
+    Transaction,
+    GymManager as BaseGymManager,
+)
 
 
 # =====================================================================

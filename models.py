@@ -13,7 +13,7 @@ Nhiệm vụ theo Phân công Giai đoạn III (Yêu cầu 1):
 """
 
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from typing import Optional, Union
 
 
@@ -359,7 +359,7 @@ class Member(ABC):
             raise ValueError("Ngày hết hạn phải là đối tượng datetime hoặc chuỗi định dạng dd/mm/yyyy.")
 
     # --- Nghiệp vụ kiểm tra hạn & gia hạn khớp đề bài ---
-    def check_expiry(self, current_date: Optional[Union[datetime, datetime.date]] = None) -> bool:
+    def check_expiry(self, current_date: Optional[Union[datetime, date]] = None) -> bool:
         """
         Kiểm tra trạng thái hạn sử dụng của hội viên khớp yêu cầu đề bài.
         Trả về True nếu còn hạn (expiry_date >= current_date), False nếu đã hết hạn.

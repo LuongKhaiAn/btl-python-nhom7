@@ -29,8 +29,12 @@ btl/
 │   └── test_gym_management.py          # 15 test cases kiểm tra OOP, nghiệp vụ & ngoại lệ
 │
 ├── models.py                           # [Module 1] Các lớp thực thể OOP (Encapsulation, Polymorphism)
-├── gym_management.py                   # [Module Tích hợp] Quản lý nghiệp vụ GymManager & Console UI
-├── main.py                             # Điểm khởi chạy chính của chương trình
+├── gym_management.py                   # [Module của An] GymManager: thêm/sửa/gia hạn/check-in/lưu JSON
+├── long_crud.py                        # [Module của Long] LongGymManager: xóa an toàn, phân công HLV, thêm gói/HLV, cảnh báo hết hạn
+├── gym_analytics.py                    # [Module của Văn] GymAnalyticsMixin: tìm kiếm, sắp xếp, thống kê
+├── ok.py                               # [Module của Thành] data_handler: xuất báo cáo CSV (được gym_app nạp với tên data_handler)
+├── gym_app.py                          # Chương trình tổng hợp: ghép các module trên thành menu 17 chức năng
+├── main.py                             # Điểm khởi chạy chính (gọi gym_app.main)
 │
 ├── .gitignore                          # Cấu hình bỏ qua file tạm, cache, file rác
 ├── README.md                           # Tài liệu hướng dẫn sử dụng & cấu trúc dự án
@@ -64,11 +68,12 @@ Dự án áp dụng chặt chẽ 4 nguyên lý OOP:
 - Không yêu cầu cài đặt thư viện bên ngoài (sử dụng thư viện chuẩn `datetime`, `json`, `os`, `abc`, `unittest`).
 
 ### Chạy ứng dụng Console:
-Từ thư mục gốc dự án, thực hiện lệnh:
 ```bash
 python3 main.py
 ```
-*(hoặc `python main.py` tùy theo môi trường hệ điều hành)*
+*(hoặc `python main.py` tùy theo môi trường hệ điều hành; có thể chạy từ bất kỳ thư mục nào, dữ liệu luôn được lưu tại `data/gym_data.json` của dự án)*
+
+`main.py` chạy bản đầy đủ 17 chức năng. Nếu chỉ muốn chạy phần cơ bản của An (10 chức năng), dùng `python3 gym_management.py`.
 
 ### Chạy kiểm thử tự động (Unit Tests):
 Chạy toàn bộ 15 test cases tự động:

@@ -14,15 +14,19 @@ from models import (
 )
 
 
+# Đường dẫn dữ liệu tính theo vị trí file này (không phụ thuộc thư mục đang đứng khi chạy)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_DATA_FILE = os.path.join(BASE_DIR, "data", "gym_data.json")
+
+
 class GymManager:
     def __init__(self, data_file: str = None):
         if data_file is None:
-            if os.path.exists(os.path.join("data", "gym_data.json")):
-                self.data_file = os.path.join("data", "gym_data.json")
-            elif os.path.exists("gym_data.json"):
-                self.data_file = "gym_data.json"
+            legacy_file = os.path.join(BASE_DIR, "gym_data.json")
+            if not os.path.exists(DEFAULT_DATA_FILE) and os.path.exists(legacy_file):
+                self.data_file = legacy_file
             else:
-                self.data_file = os.path.join("data", "gym_data.json")
+                self.data_file = DEFAULT_DATA_FILE
         else:
             self.data_file = data_file
         self.plans = []
@@ -120,12 +124,21 @@ class GymManager:
             self.plans = [Plan.from_dict(p) for p in data.get("plans", [])]
             self.trainers = [Trainer.from_dict(t) for t in data.get("trainers", [])]
 
+            plan_map = {p.plan_id: p for p in self.plans}
+            trainer_map = {t.trainer_id: t for t in self.trainers}
+
             self.members = []
             for m in data.get("members", []):
                 if m.get("type") == "Premium":
-                    self.members.append(PremiumMember.from_dict(m))
+                    member = PremiumMember.from_dict(m)
                 else:
-                    self.members.append(BasicMember.from_dict(m))
+                    member = BasicMember.from_dict(m)
+                # Dùng chung đối tượng Plan/Trainer với danh mục (thay vì bản sao riêng)
+                if member.plan.plan_id in plan_map:
+                    member.plan = plan_map[member.plan.plan_id]
+                if member.trainer and member.trainer.trainer_id in trainer_map:
+                    member.trainer = trainer_map[member.trainer.trainer_id]
+                self.members.append(member)
 
             self.workout_sessions = [
                 WorkoutSession.from_dict(s)
@@ -170,6 +183,9 @@ class GymManager:
         print(" 1. Basic Member (Tập luyện thông thường)")
         print(" 2. Premium Member (VIP: Sauna, Locker, ưu đãi HLV)")
         type_choice = input("Lựa chọn (1 hoặc 2): ").strip()
+        if type_choice not in ("1", "2"):
+            print("Phân loại hội viên không hợp lệ (chỉ nhập 1 hoặc 2)!")
+            return
 
         print("\n--- Danh mục Gói tập ---")
         for p in self.plans:
@@ -473,41 +489,51 @@ def main():
         print("--------------------------------------------------")
         choice = input("Nhập lựa chọn của bạn (0-10): ").strip()
 
-        if choice == "1":
-            manager.view_members()
-        elif choice == "2":
-            manager.add_member()
-        elif choice == "3":
-            manager.update_member()
-        elif choice == "4":
-            manager.delete_member()
-        elif choice == "5":
-            manager.renew_membership()
-        elif choice == "6":
-            print("\n 1. Ghi nhận lượt tập (Check-in)")
-            print(" 2. Xem lịch sử các lượt tập")
-            c = input("Chọn (1/2): ").strip()
-            if c == "1":
-                manager.record_checkin()
-            elif c == "2":
-                manager.view_checkin_history()
-            else:
-                print("Lựa chọn không hợp lệ.")
-        elif choice == "7":
-            manager.search_members()
-        elif choice == "8":
-            manager.sort_members()
-        elif choice == "9":
-            manager.statistics_menu()
-        elif choice == "10":
-            manager.save_data()
-        elif choice == "0":
+        if choice == "0":
             manager.save_data()
             print("Dữ liệu đã được lưu an toàn. Hẹn gặp lại bạn!")
             break
-        else:
-            print("Lựa chọn không hợp lệ, vui lòng chọn từ 0 đến 10.")
+
+        # Bắt lỗi để nhập sai (vd: để trống SĐT) không làm chương trình bị văng
+        try:
+            if choice == "1":
+                manager.view_members()
+            elif choice == "2":
+                manager.add_member()
+            elif choice == "3":
+                manager.update_member()
+            elif choice == "4":
+                manager.delete_member()
+            elif choice == "5":
+                manager.renew_membership()
+            elif choice == "6":
+                print("\n 1. Ghi nhận lượt tập (Check-in)")
+                print(" 2. Xem lịch sử các lượt tập")
+                c = input("Chọn (1/2): ").strip()
+                if c == "1":
+                    manager.record_checkin()
+                elif c == "2":
+                    manager.view_checkin_history()
+                else:
+                    print("Lựa chọn không hợp lệ.")
+            elif choice == "7":
+                manager.search_members()
+            elif choice == "8":
+                manager.sort_members()
+            elif choice == "9":
+                manager.statistics_menu()
+            elif choice == "10":
+                manager.save_data()
+            else:
+                print("Lựa chọn không hợp lệ, vui lòng chọn từ 0 đến 10.")
+        except ValueError as err:
+            print(f"Dữ liệu không hợp lệ: {err}")
+        except Exception as err:  # noqa: BLE001
+            print(f"Có lỗi xảy ra: {err}")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except (KeyboardInterrupt, EOFError):
+        print("\n\nChương trình đã được dừng bởi người dùng. Hẹn gặp lại!")

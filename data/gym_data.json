@@ -4,25 +4,25 @@
       "plan_id": "P01",
       "plan_name": "1 Tháng",
       "duration_months": 1,
-      "price": 500000
+      "price": 500000.0
     },
     {
       "plan_id": "P03",
       "plan_name": "3 Tháng",
       "duration_months": 3,
-      "price": 1350000
+      "price": 1350000.0
     },
     {
       "plan_id": "P06",
       "plan_name": "6 Tháng",
       "duration_months": 6,
-      "price": 2500000
+      "price": 2500000.0
     },
     {
       "plan_id": "P12",
       "plan_name": "12 Tháng",
       "duration_months": 12,
-      "price": 4500000
+      "price": 4500000.0
     }
   ],
   "trainers": [
@@ -31,21 +31,21 @@
       "full_name": "Nguyễn Văn HLV",
       "specialty": "Fitness / Giảm cân",
       "phone_number": "0901234567",
-      "monthly_fee": 500000
+      "monthly_fee": 500000.0
     },
     {
       "trainer_id": "T02",
       "full_name": "Trần Thị HLV",
       "specialty": "Yoga / Pilates",
       "phone_number": "0908765432",
-      "monthly_fee": 600000
+      "monthly_fee": 600000.0
     },
     {
       "trainer_id": "T03",
       "full_name": "Lê Văn HLV",
       "specialty": "Boxing / Kickfit",
       "phone_number": "0912345678",
-      "monthly_fee": 550000
+      "monthly_fee": 550000.0
     }
   ],
   "members": [
@@ -58,14 +58,14 @@
         "plan_id": "P03",
         "plan_name": "3 Tháng",
         "duration_months": 3,
-        "price": 1350000
+        "price": 1350000.0
       },
       "trainer": {
         "trainer_id": "T01",
         "full_name": "Nguyễn Văn HLV",
         "specialty": "Fitness / Giảm cân",
         "phone_number": "0901234567",
-        "monthly_fee": 500000
+        "monthly_fee": 500000.0
       },
       "join_date": "01/10/2026",
       "expiry_date": "01/01/2027",
@@ -80,18 +80,18 @@
         "plan_id": "P06",
         "plan_name": "6 Tháng",
         "duration_months": 6,
-        "price": 2500000
+        "price": 2500000.0
       },
       "trainer": {
         "trainer_id": "T02",
         "full_name": "Trần Thị HLV",
         "specialty": "Yoga / Pilates",
         "phone_number": "0908765432",
-        "monthly_fee": 600000
+        "monthly_fee": 600000.0
       },
       "join_date": "15/09/2026",
       "expiry_date": "15/03/2027",
-      "vip_perks_fee": 200000,
+      "vip_perks_fee": 200000.0,
       "sauna_access": true,
       "trainer_discount_rate": 0.2
     },
@@ -104,7 +104,7 @@
         "plan_id": "P01",
         "plan_name": "1 Tháng",
         "duration_months": 1,
-        "price": 500000
+        "price": 500000.0
       },
       "trainer": null,
       "join_date": "01/08/2026",
