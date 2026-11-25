@@ -1,155 +1,255 @@
 {
-  "plans": [
-    {
-      "plan_id": "P01",
-      "plan_name": "1 Tháng",
-      "duration_months": 1,
-      "price": 500000.0
-    },
-    {
-      "plan_id": "P03",
-      "plan_name": "3 Tháng",
-      "duration_months": 3,
-      "price": 1350000.0
-    },
-    {
-      "plan_id": "P06",
-      "plan_name": "6 Tháng",
-      "duration_months": 6,
-      "price": 2500000.0
-    },
-    {
-      "plan_id": "P12",
-      "plan_name": "12 Tháng",
-      "duration_months": 12,
-      "price": 4500000.0
-    }
-  ],
-  "trainers": [
-    {
-      "trainer_id": "T01",
-      "full_name": "Nguyễn Văn HLV",
-      "specialty": "Fitness / Giảm cân",
-      "phone_number": "0901234567",
-      "monthly_fee": 500000.0
-    },
-    {
-      "trainer_id": "T02",
-      "full_name": "Trần Thị HLV",
-      "specialty": "Yoga / Pilates",
-      "phone_number": "0908765432",
-      "monthly_fee": 600000.0
-    },
-    {
-      "trainer_id": "T03",
-      "full_name": "Lê Văn HLV",
-      "specialty": "Boxing / Kickfit",
-      "phone_number": "0912345678",
-      "monthly_fee": 550000.0
-    }
-  ],
-  "members": [
-    {
-      "type": "Basic",
-      "member_id": "HV01",
-      "full_name": "Nguyễn Văn An",
-      "phone_number": "0911222333",
-      "plan": {
-        "plan_id": "P03",
-        "plan_name": "3 Tháng",
-        "duration_months": 3,
-        "price": 1350000.0
-      },
-      "trainer": {
-        "trainer_id": "T01",
-        "full_name": "Nguyễn Văn HLV",
-        "specialty": "Fitness / Giảm cân",
-        "phone_number": "0901234567",
-        "monthly_fee": 500000.0
-      },
-      "join_date": "01/10/2026",
-      "expiry_date": "01/01/2027",
-      "discount_rate": 0.05
-    },
-    {
-      "type": "Premium",
-      "member_id": "HV02",
-      "full_name": "Trần Thị Bình",
-      "phone_number": "0922333444",
-      "plan": {
-        "plan_id": "P06",
-        "plan_name": "6 Tháng",
-        "duration_months": 6,
-        "price": 2500000.0
-      },
-      "trainer": {
-        "trainer_id": "T02",
-        "full_name": "Trần Thị HLV",
-        "specialty": "Yoga / Pilates",
-        "phone_number": "0908765432",
-        "monthly_fee": 600000.0
-      },
-      "join_date": "15/09/2026",
-      "expiry_date": "15/03/2027",
-      "vip_perks_fee": 200000.0,
-      "sauna_access": true,
-      "trainer_discount_rate": 0.2
-    },
-    {
-      "type": "Basic",
-      "member_id": "HV03",
-      "full_name": "Lê Hoàng Cường",
-      "phone_number": "0933444555",
-      "plan": {
-        "plan_id": "P01",
-        "plan_name": "1 Tháng",
-        "duration_months": 1,
-        "price": 500000.0
-      },
-      "trainer": null,
-      "join_date": "01/08/2026",
-      "expiry_date": "01/09/2026",
-      "discount_rate": 0.0
-    }
-  ],
-  "workout_sessions": [
-    {
-      "session_id": "LT001",
-      "member_id": "HV01",
-      "checkin_time": "05/10/2026 17:30:00",
-      "notes": "Tập cơ ngực cùng HLV"
-    },
-    {
-      "session_id": "LT002",
-      "member_id": "HV02",
-      "checkin_time": "20/09/2026 18:00:00",
-      "notes": "Tập Yoga và xông hơi"
-    }
-  ],
-  "transactions": [
-    {
-      "transaction_id": "GD001",
-      "member_id": "HV01",
-      "amount": 2782500.0,
-      "transaction_type": "Đăng ký mới",
-      "plan_name": "3 Tháng",
-      "payment_date": "01/10/2026 08:30:00"
-    },
-    {
-      "transaction_id": "GD002",
-      "member_id": "HV02",
-      "amount": 6580000.0,
-      "transaction_type": "Đăng ký mới",
-      "plan_name": "6 Tháng",
-      "payment_date": "15/09/2026 09:15:00"
-    },
-    {
-      "transaction_id": "GD003",
-      "member_id": "HV03",
-      "amount": 500000.0,
-      "transaction_type": "Đăng ký mới",
-      "plan_name": "1 Tháng",
-      "payment_date": "01/08/2026 14:00:00"
-    }
-  ]
+    "plans": [
+        {
+            "plan_id": "P01",
+            "plan_name": "1 Tháng",
+            "duration_months": 1,
+            "price": 500000.0
+        },
+        {
+            "plan_id": "P03",
+            "plan_name": "3 Tháng",
+            "duration_months": 3,
+            "price": 1350000.0
+        },
+        {
+            "plan_id": "P06",
+            "plan_name": "6 Tháng",
+            "duration_months": 6,
+            "price": 2500000.0
+        },
+        {
+            "plan_id": "P12",
+            "plan_name": "12 Tháng",
+            "duration_months": 12,
+            "price": 4500000.0
+        }
+    ],
+    "trainers": [
+        {
+            "trainer_id": "T01",
+            "full_name": "Nguyễn Văn Minh",
+            "specialty": "Fitness",
+            "phone_number": "0901234567",
+            "monthly_fee": 500000.0
+        },
+        {
+            "trainer_id": "T02",
+            "full_name": "Trần Thị Lan",
+            "specialty": "Yoga",
+            "phone_number": "0908765432",
+            "monthly_fee": 600000.0
+        },
+        {
+            "trainer_id": "T03",
+            "full_name": "Lê Hoàng Nam",
+            "specialty": "Boxing",
+            "phone_number": "0912345678",
+            "monthly_fee": 550000.0
+        }
+    ],
+    "members": [
+        {
+            "type": "Basic",
+            "member_id": "HV01",
+            "full_name": "Nguyễn Văn An",
+            "phone_number": "0911222333",
+            "plan": {
+                "plan_id": "P03",
+                "plan_name": "3 Tháng",
+                "duration_months": 3,
+                "price": 1350000.0
+            },
+            "trainer": {
+                "trainer_id": "T01",
+                "full_name": "Nguyễn Văn Minh",
+                "specialty": "Fitness",
+                "phone_number": "0901234567",
+                "monthly_fee": 500000.0
+            },
+            "join_date": "26/10/2026",
+            "expiry_date": "24/01/2027",
+            "discount_rate": 0.05
+        },
+        {
+            "type": "Premium",
+            "member_id": "HV02",
+            "full_name": "Trần Thị Bình",
+            "phone_number": "0922333444",
+            "plan": {
+                "plan_id": "P06",
+                "plan_name": "6 Tháng",
+                "duration_months": 6,
+                "price": 2500000.0
+            },
+            "trainer": null,
+            "join_date": "26/09/2026",
+            "expiry_date": "25/03/2027",
+            "vip_perks_fee": 200000.0,
+            "sauna_access": true,
+            "trainer_discount_rate": 0.2
+        },
+        {
+            "type": "Basic",
+            "member_id": "HV03",
+            "full_name": "Lê Hoàng Cường",
+            "phone_number": "0933444555",
+            "plan": {
+                "plan_id": "P01",
+                "plan_name": "1 Tháng",
+                "duration_months": 1,
+                "price": 500000.0
+            },
+            "trainer": {
+                "trainer_id": "T02",
+                "full_name": "Trần Thị Lan",
+                "specialty": "Yoga",
+                "phone_number": "0908765432",
+                "monthly_fee": 600000.0
+            },
+            "join_date": "01/08/2026",
+            "expiry_date": "01/09/2026",
+            "discount_rate": 0.0
+        },
+        {
+            "type": "Premium",
+            "member_id": "HV04",
+            "full_name": "Phạm Thị Dung",
+            "phone_number": "0944555666",
+            "plan": {
+                "plan_id": "P03",
+                "plan_name": "3 Tháng",
+                "duration_months": 3,
+                "price": 1350000.0
+            },
+            "trainer": null,
+            "join_date": "01/05/2026",
+            "expiry_date": "01/08/2026",
+            "vip_perks_fee": 200000.0,
+            "sauna_access": true,
+            "trainer_discount_rate": 0.2
+        },
+        {
+            "type": "Basic",
+            "member_id": "HV05",
+            "full_name": "Hoàng Văn Đức",
+            "phone_number": "0955666777",
+            "plan": {
+                "plan_id": "P03",
+                "plan_name": "3 Tháng",
+                "duration_months": 3,
+                "price": 1350000.0
+            },
+            "trainer": null,
+            "join_date": "31/08/2026",
+            "expiry_date": "29/11/2026",
+            "discount_rate": 0.1
+        },
+        {
+            "type": "Premium",
+            "member_id": "HV06",
+            "full_name": "Đỗ Thị Hương",
+            "phone_number": "0966777888",
+            "plan": {
+                "plan_id": "P01",
+                "plan_name": "1 Tháng",
+                "duration_months": 1,
+                "price": 500000.0
+            },
+            "trainer": {
+                "trainer_id": "T03",
+                "full_name": "Lê Hoàng Nam",
+                "specialty": "Boxing",
+                "phone_number": "0912345678",
+                "monthly_fee": 550000.0
+            },
+            "join_date": "29/10/2026",
+            "expiry_date": "28/11/2026",
+            "vip_perks_fee": 200000.0,
+            "sauna_access": true,
+            "trainer_discount_rate": 0.2
+        }
+    ],
+    "transactions": [
+        {
+            "transaction_id": "GD001",
+            "member_id": "HV01",
+            "amount": 2782500.0,
+            "transaction_type": "Đăng ký mới",
+            "plan_name": "3 Tháng",
+            "payment_date": "26/10/2026 00:00:00"
+        },
+        {
+            "transaction_id": "GD002",
+            "member_id": "HV02",
+            "amount": 3700000.0,
+            "transaction_type": "Đăng ký mới",
+            "plan_name": "6 Tháng",
+            "payment_date": "26/09/2026 00:00:00"
+        },
+        {
+            "transaction_id": "GD003",
+            "member_id": "HV03",
+            "amount": 1100000.0,
+            "transaction_type": "Đăng ký mới",
+            "plan_name": "1 Tháng",
+            "payment_date": "01/08/2026 00:00:00"
+        },
+        {
+            "transaction_id": "GD004",
+            "member_id": "HV04",
+            "amount": 1950000.0,
+            "transaction_type": "Đăng ký mới",
+            "plan_name": "3 Tháng",
+            "payment_date": "01/05/2026 00:00:00"
+        },
+        {
+            "transaction_id": "GD005",
+            "member_id": "HV05",
+            "amount": 1215000.0,
+            "transaction_type": "Đăng ký mới",
+            "plan_name": "3 Tháng",
+            "payment_date": "31/08/2026 00:00:00"
+        },
+        {
+            "transaction_id": "GD006",
+            "member_id": "HV06",
+            "amount": 1140000.0,
+            "transaction_type": "Đăng ký mới",
+            "plan_name": "1 Tháng",
+            "payment_date": "29/10/2026 00:00:00"
+        }
+    ],
+    "workout_sessions": [
+        {
+            "session_id": "LT001",
+            "member_id": "HV01",
+            "checkin_time": "05/11/2026 17:30:00",
+            "notes": "Tập cơ ngực"
+        },
+        {
+            "session_id": "LT002",
+            "member_id": "HV02",
+            "checkin_time": "10/11/2026 18:00:00",
+            "notes": "Tập thể hình VIP"
+        },
+        {
+            "session_id": "LT003",
+            "member_id": "HV01",
+            "checkin_time": "15/11/2026 17:00:00",
+            "notes": "Tập cơ bụng"
+        },
+        {
+            "session_id": "LT004",
+            "member_id": "HV03",
+            "checkin_time": "15/08/2026 06:30:00",
+            "notes": "Tập Yoga"
+        },
+        {
+            "session_id": "LT005",
+            "member_id": "HV06",
+            "checkin_time": "20/11/2026 18:00:00",
+            "notes": "Tập Fitness"
+        }
+    ]
 }

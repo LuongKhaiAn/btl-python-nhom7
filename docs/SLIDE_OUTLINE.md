@@ -1,13 +1,13 @@
 # DÀN Ý SLIDE THUYẾT TRÌNH BÀI TẬP LỚN (BẢN CHUẨN)
 ## ĐỀ TÀI: HỆ THỐNG QUẢN LÝ HỘI VIÊN PHÒNG GYM
-*Tệp mẫu: `Nhom_X_Slides.pptx` - Người thực hiện: Lương*
+*Tệp mẫu: `Nhom_7_Slides.pptx` - Người thực hiện: Lương*
 
 ---
 
 ### Slide 1: Trang tiêu đề
 - **Tên đề tài:** HỆ THỐNG QUẢN LÝ HỘI VIÊN PHÒNG GYM CHUYÊN NGHIỆP
 - **Học phần:** Lập trình Python
-- **Nhóm thực hiện:** Nhóm X
+- **Nhóm thực hiện:** Nhóm 7
 - **Thành viên & Vai trò:**
   - An: Thiết kế kiến trúc UML, Luồng xử lý, Lập trình OOP
   - Văn, Vỹ: Phân tích nghiệp vụ, Viết tài liệu báo cáo Word
@@ -21,7 +21,7 @@
 - **Yêu cầu cốt lõi:**
   - Áp dụng triệt để lập trình hướng đối tượng (OOP): Đa hình tính phí giữa các phân hạng hội viên.
   - Quản lý lượt tập (Check-in) và phát hiện thẻ hết hạn.
-  - Gia hạn thẻ linh hoạt (cộng dồn ngày đúng nghiệp vụ).
+  - Gia hạn thẻ linh hoạt (cộng theo tháng lịch đúng nghiệp vụ).
   - Ghi nhận giao dịch và thống kê doanh thu thực tế.
   - Lưu trữ dữ liệu bền vững (JSON Persistence).
 
@@ -29,14 +29,14 @@
 
 ### Slide 3: Sơ đồ lớp hướng đối tượng (UML Class Diagram)
 *(Chèn hình chụp từ Tab 1 file `UML.drawio`)*
-- **Lớp trừu tượng `Member`**: Khai báo các thuộc tính chung và phương thức trừu tượng `calculateMembershipFee()`.
+- **Lớp trừu tượng `Member`**: Khai báo các thuộc tính chung, kiểm tra hạn thẻ `check_expiry()` và phương thức trừu tượng `calculateMembershipFee()` / `calculate_membership_fee()`.
 - **Kế thừa & Đa hình (Polymorphism)**:
   - `BasicMember`: Áp dụng chiết khấu cơ bản, thuê HLV tính theo giá niêm yết.
   - `PremiumMember`: Gói VIP tích hợp xông hơi, locker riêng, ưu đãi giảm giá 20% khi thuê HLV.
 - **Thực thể mở rộng**:
   - `Transaction`: Quản lý từng dòng tiền thu phí.
   - `WorkoutSession`: Quản lý nhật ký quẹt thẻ ra/vào phòng gym.
-  - `Plan`, `Trainer`, `GymManager`: Đảm bảo tính kết tập và tổ chức dữ liệu khoa học.
+  - `MembershipPlan`, `Trainer`, `GymManager`: Đảm bảo tính kết tập và tổ chức dữ liệu khoa học.
 
 ---
 

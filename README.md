@@ -12,7 +12,7 @@ Hệ thống Quản lý Hội viên Phòng Gym là ứng dụng Console được
 ## 2. Cấu trúc thư mục dự án
 
 ```text
-btl-python-nhom7-fixed/
+btl-python-nhom7/
 │
 ├── data/                               # Thư mục lưu trữ dữ liệu
 │   └── gym_data.json                   # Dữ liệu hội viên, gói tập, HLV, lượt tập, giao dịch

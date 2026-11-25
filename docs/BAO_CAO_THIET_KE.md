@@ -6,11 +6,11 @@
 ### PHẦN 1: MỤC TIÊU VÀ PHẠM VI HỆ THỐNG
 1. **Mục tiêu**: Xây dựng phần mềm quản lý phòng Gym chuyên nghiệp bằng Python, áp dụng các nguyên lý lập trình hướng đối tượng (OOP: Trừu tượng, Đóng gói, Kế thừa, Đa hình), quản lý lượt tập, giao dịch tài chính và lưu trữ dữ liệu bền vững (JSON Persistence).
 2. **Các chức năng chính**:
-   - Quản lý danh mục Gói tập (Plan) và Huấn luyện viên (Trainer).
+   - Quản lý danh mục Gói tập (MembershipPlan) và Huấn luyện viên (Trainer).
    - Quản lý Hội viên với mô hình kế thừa đa hình: `Member` $\rightarrow$ `BasicMember` (Hội viên thường) và `PremiumMember` (Hội viên VIP).
    - CRUD Hội viên đầy đủ: Xem danh sách, Thêm mới, Sửa thông tin, Xóa hội viên.
-   - **Gia hạn gói tập đúng quy ước**: Thẻ còn hạn $\rightarrow$ cộng dồn ngày; Thẻ hết hạn $\rightarrow$ tính từ ngày hiện tại; Tự động ghi nhận Transaction thu phí.
-   - **Ghi nhận lượt tập (Check-in)**: Kiểm tra trạng thái thẻ (`is_active()`). Chỉ cho phép hội viên còn hạn check-in và lưu lịch sử `WorkoutSession`.
+   - **Gia hạn gói tập đúng quy ước**: Thẻ còn hạn $\rightarrow$ cộng theo tháng lịch; Thẻ hết hạn $\rightarrow$ tính từ ngày hiện tại; Tự động ghi nhận Transaction thu phí.
+   - **Ghi nhận lượt tập (Check-in)**: Kiểm tra trạng thái thẻ (`check_expiry()` / `is_active()`). Chỉ cho phép hội viên còn hạn check-in và lưu lịch sử `WorkoutSession`.
    - **Tìm kiếm & Lọc đa tiêu chí**: Tìm theo từ khóa (Mã, Tên, SĐT), lọc theo trạng thái thẻ (Còn hạn / Hết hạn), lọc theo loại hội viên (Basic / Premium), lọc theo mã gói tập.
    - **Sắp xếp linh hoạt**: Theo Mã, Tên, Ngày hết hạn, Ngày tham gia, Phí hội viên (tăng/giảm).
    - **Báo cáo doanh thu & Thống kê toàn diện**: Doanh thu tính chính xác từ tổng số tiền của các giao dịch `Transaction` thực tế (Đăng ký mới + Gia hạn).
@@ -26,15 +26,17 @@
   - `# memberId: String`: Mã hội viên (duy nhất).
   - `# fullName: String`: Họ tên.
   - `# phoneNumber: String`: Số điện thoại.
-  - `# plan: Plan`: Gói tập đăng ký.
+  - `# plan: MembershipPlan`: Gói tập đăng ký.
   - `# trainer: Trainer`: Huấn luyện viên hướng dẫn (nếu có).
   - `# joinDate: LocalDate`: Ngày đăng ký.
   - `# expiryDate: LocalDate`: Ngày hết hạn thẻ.
 - **Phương thức**:
-  - `+ isActive(): boolean`: Kiểm tra thẻ còn hạn tập hay không.
-  - `+ renew(plan: Plan)`: Gia hạn gói tập theo đúng quy ước cộng dồn ngày.
+  - `+ check_expiry(): boolean`: Kiểm tra thẻ còn hạn tập hay đã hết hạn khớp đề bài.
+  - `+ isActive(): boolean`: Kiểm tra thẻ còn hạn tập hay không (bí danh gọi `check_expiry()`).
+  - `+ renew(plan: MembershipPlan)`: Gia hạn gói tập theo đúng quy ước cộng theo tháng lịch.
   - `+ calculateMembershipFee(): double*`: Phương thức trừu tượng tính học phí (**Đa hình - Polymorphism**).
   - `+ getMemberType(): String*`: Phương thức trừu tượng trả về loại hội viên.
+  - `+ __str__(): String`: Định dạng chuỗi thông tin hội viên chuẩn OOP.
   - `+ displayInfo()`: Hiển thị thông tin hội viên.
   - `+ toDict(): dict`: Xuất dữ liệu để lưu JSON.
 
@@ -49,7 +51,7 @@
   - Cài đặt `calculateMembershipFee()`: Phí gói + phụ phí dịch vụ VIP + phí HLV (được chiết khấu VIP 20%).
 
 #### 3. Các thực thể phụ trợ
-- **`Plan`**: `planId`, `planName`, `durationMonths`, `price`.
+- **`MembershipPlan`** *(kèm bí danh `Plan` tương thích ngược)*: `planId`, `planName`, `durationMonths`, `price`.
 - **`Trainer`**: `trainerId`, `fullName`, `specialty`, `phoneNumber`, `monthlyFee`.
 - **`Transaction`**: Ghi nhận dòng tiền thu phí (`transactionId`, `memberId`, `amount`, `transactionType`, `planName`, `paymentDate`).
 - **`WorkoutSession`**: Ghi nhận lượt tập (`sessionId`, `memberId`, `checkinTime`, `notes`).
@@ -60,7 +62,7 @@
 ### PHẦN 3: THIẾT KẾ LƯU ĐỒ HOẠT ĐỘNG & MENU (ACTIVITY DIAGRAM)
 *File thiết kế: `UML.drawio` (Tab 2: Activity Diagram - Menu Flow)*
 
-1. Khởi động chương trình $\rightarrow$ Tự động đọc dữ liệu từ `gym_data.json`.
+1. Khởi động chương trình $\rightarrow$ Tự động đọc dữ liệu từ `data/gym_data.json`.
 2. Hiển thị Menu điều hướng chính (0 - 17).
 3. Người dùng nhập lựa chọn:
    - `1 - 4`: Xem / Thêm / Sửa / Xóa hội viên $\rightarrow$ Thêm tự tính phí đa hình & tạo Transaction; Xóa cảnh báo dữ liệu liên quan $\rightarrow$ Lưu JSON.

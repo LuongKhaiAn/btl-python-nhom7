@@ -298,12 +298,29 @@ class TestRenewCheckinAssign(ManagerTestCase):
         self.assertEqual(len(self.gm.trainers), n_trainers + 1)
 
     def test_warn_expiring_members(self):
+        today_str = datetime.now().strftime("%d/%m/%Y")
         soon = (datetime.now() + timedelta(days=3)).strftime("%d/%m/%Y")
-        self.add_basic("HV01", expiry=soon)
+        self.add_basic("HV00", expiry=today_str, phone="0900000000")
+        self.add_basic("HV01", expiry=soon, phone="0900000001")
         self.add_basic("HV02", expiry="01/01/2099", phone="0900000002")
-        out, _ = self.run_with_input(self.gm.warn_expiring_members, "7")
-        self.assertIn("HV01", out)
-        self.assertNotIn("HV02", out)
+
+        # Mốc biên N = 0: chỉ hiển thị hội viên hết hạn đúng hôm nay
+        out_zero, _ = self.run_with_input(self.gm.warn_expiring_members, "0")
+        self.assertIn("HV00", out_zero)
+        self.assertIn("HẾT HẠN HÔM NAY", out_zero)
+        self.assertNotIn("HV01", out_zero)
+        self.assertNotIn("HV02", out_zero)
+
+        # N = 7: hiển thị HV00 trước HV01 theo thứ tự tăng dần số ngày còn lại
+        out_seven, _ = self.run_with_input(self.gm.warn_expiring_members, "7")
+        self.assertIn("HV00", out_seven)
+        self.assertIn("HV01", out_seven)
+        self.assertNotIn("HV02", out_seven)
+        self.assertLess(out_seven.index("HV00"), out_seven.index("HV01"))
+
+        # Mốc biên âm N = -1: báo lỗi an toàn, không crash
+        out_neg, _ = self.run_with_input(self.gm.warn_expiring_members, "-1")
+        self.assertIn("Lỗi", out_neg)
 
 
 class TestSearchSortStatistics(ManagerTestCase):
