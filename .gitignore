@@ -45,6 +45,8 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 test_gym_storage.json
+*.bak
+bao_cao_hoi_vien.csv
 
 # IDE & OS files
 .DS_Store

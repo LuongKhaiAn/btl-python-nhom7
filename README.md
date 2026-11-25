@@ -12,7 +12,7 @@ Hệ thống Quản lý Hội viên Phòng Gym là ứng dụng Console được
 ## 2. Cấu trúc thư mục dự án
 
 ```text
-btl/
+btl-python-nhom7/
 │
 ├── data/                               # Thư mục lưu trữ dữ liệu
 │   └── gym_data.json                   # Dữ liệu hội viên, gói tập, HLV, lượt tập, giao dịch
@@ -20,22 +20,29 @@ btl/
 ├── docs/                               # Thư mục tài liệu thiết kế & báo cáo
 │   ├── BAO_CAO_THIET_KE.md             # Báo cáo phân tích thiết kế hệ thống chi tiết
 │   ├── Chu_de_07_Bao_cao_phan_tich_he_thong.docx # Báo cáo phân tích hệ thống (Word)
-│   ├── Bang_Phan_Cong_Lap_Trinh_Chu_De_07 (3).xlsx # Bảng phân công chi tiết công việc
+│   ├── Bang_Phan_Cong_Lap_Trinh_Chu_De_07.xlsx    # Bảng phân công chi tiết công việc
+│   ├── Bang_Kich_Ban_Kiem_Thu_Chu_De_07_v2.xlsx   # Bảng kịch bản kiểm thử (14 test case)
 │   ├── SLIDE_OUTLINE.md                # Đề cương slide thuyết trình
 │   └── UML.drawio                      # Sơ đồ lớp UML Class Diagram & Flowchart
 │
 ├── tests/                              # Thư mục kiểm thử tự động (Unit Tests)
 │   ├── __init__.py
-│   └── test_gym_management.py          # 15 test cases kiểm tra OOP, nghiệp vụ & ngoại lệ
+│   └── test_gym_management.py          # 40 test cases kiểm tra OOP, nghiệp vụ, ngoại lệ & lưu trữ
 │
 ├── models.py                           # [Module 1] Các lớp thực thể OOP (Encapsulation, Polymorphism)
-├── gym_management.py                   # [Module Tích hợp] Quản lý nghiệp vụ GymManager & Console UI
-├── main.py                             # Điểm khởi chạy chính của chương trình
+├── gym_management.py                   # [Module của An] GymManager: thêm/sửa/gia hạn/check-in/lưu JSON
+├── long_crud.py                        # [Module của Long] LongGymManager: xóa an toàn, phân công HLV, thêm gói/HLV, cảnh báo hết hạn
+├── gym_analytics.py                    # [Module của Văn] GymAnalyticsMixin: tìm kiếm, sắp xếp, thống kê
+├── data_handler.py                     # [Module Lương/Thành] Lưu-đọc JSON (ghi atomic), dữ liệu mẫu, xuất báo cáo CSV
+├── gym_app.py                          # Chương trình tổng hợp: ghép các module trên thành menu 17 chức năng
+├── main.py                             # Điểm khởi chạy chính (gọi gym_app.main)
 │
 ├── .gitignore                          # Cấu hình bỏ qua file tạm, cache, file rác
 ├── README.md                           # Tài liệu hướng dẫn sử dụng & cấu trúc dự án
 └── requirements.txt                    # Danh sách phụ thuộc môi trường Python
 ```
+
+> `bao_cao_hoi_vien.csv` được tạo ở thư mục gốc khi chọn chức năng 16; file `*.bak` là bản sao lưu tự tạo nếu `gym_data.json` bị hỏng.
 
 ---
 
@@ -64,14 +71,16 @@ Dự án áp dụng chặt chẽ 4 nguyên lý OOP:
 - Không yêu cầu cài đặt thư viện bên ngoài (sử dụng thư viện chuẩn `datetime`, `json`, `os`, `abc`, `unittest`).
 
 ### Chạy ứng dụng Console:
-Từ thư mục gốc dự án, thực hiện lệnh:
 ```bash
 python3 main.py
 ```
-*(hoặc `python main.py` tùy theo môi trường hệ điều hành)*
+*(hoặc `python main.py` tùy theo môi trường hệ điều hành; có thể chạy từ bất kỳ thư mục nào, dữ liệu luôn được lưu tại `data/gym_data.json` của dự án)*
+
+`main.py` chạy bản đầy đủ 17 chức năng.
+Đặt biến môi trường `GYM_DEBUG=1` để hiện chi tiết lỗi (traceback) khi gỡ lỗi.
 
 ### Chạy kiểm thử tự động (Unit Tests):
-Chạy toàn bộ 15 test cases tự động:
+Chạy toàn bộ 40 test cases tự động:
 ```bash
 python3 -m unittest discover tests -v
 ```
@@ -82,14 +91,29 @@ python3 tests/test_gym_management.py
 
 ---
 
-## 5. Danh sách chức năng chính (Menu Console)
-1. **Xem danh sách hội viên**: Hiển thị bảng tổng hợp chi tiết loại thẻ, gói tập, HLV, hạn dùng và học phí.
-2. **Thêm hội viên mới**: Hỗ trợ thêm Hội viên Thường (Basic) hoặc Hội viên VIP (Premium), tự động tạo giao dịch thu phí.
-3. **Cập nhật thông tin**: Sửa họ tên, số điện thoại, huấn luyện viên.
-4. **Xóa hội viên**: Tìm theo mã, xác nhận xóa và kiểm tra an toàn dữ liệu.
-5. **Gia hạn gói tập**: Tự động nhận diện thẻ còn hạn (cộng dồn ngày) hoặc hết hạn (tính từ ngày hiện tại).
-6. **Quẹt thẻ Check-in & Lịch sử**: Chỉ cho phép hội viên còn hạn tập quẹt thẻ; lưu lại `WorkoutSession`.
-7. **Tìm kiếm đa tiêu chí**: Khớp mã chính xác, tìm gần đúng theo tên, số điện thoại, lọc theo trạng thái/gói tập.
-8. **Sắp xếp linh hoạt**: Theo mã, theo tên A-Z, theo ngày hết hạn hoặc ngày đăng ký.
-9. **Thống kê & Doanh thu**: Báo cáo tổng số hội viên, tỷ lệ hoạt động, tổng doanh thu thực tế từ `Transaction`.
-10. **Lưu trữ JSON**: Tự động đồng bộ và lưu dữ liệu an toàn vào `data/gym_data.json`.
+## 5. Danh sách chức năng chính (Menu Console — 17 chức năng)
+| # | Chức năng | Ghi chú nghiệp vụ |
+|---|---|---|
+| 1 | Xem danh sách hội viên | Bảng loại thẻ, gói, HLV, hạn dùng, học phí; xử lý danh sách rỗng |
+| 2 | Thêm hội viên (Basic/Premium) | Kiểm tra mã trùng (kể cả mã đã từng dùng), SĐT 10 số, gói/HLV phải tồn tại; tự tạo giao dịch thu phí |
+| 3 | Cập nhật thông tin | Sửa họ tên, SĐT (có kiểm tra), HLV |
+| 4 | Xóa hội viên | Cảnh báo thẻ còn hạn / giao dịch / lượt tập liên quan, xác nhận trước khi xóa; lịch sử giữ lại để bảo toàn doanh thu |
+| 5 | Phân công / đổi HLV | Mã HLV phải tồn tại; chọn 0 để chuyển sang tự tập |
+| 6 | Gia hạn gói tập | Còn hạn: cộng dồn từ ngày hết hạn cũ; hết hạn: tính từ hôm nay; **cộng theo tháng lịch** (không phải 30 ngày/tháng) |
+| 7 | Check-in | Chỉ hội viên còn hạn; check-in lần 2 trong cùng ngày phải xác nhận |
+| 8 | Lịch sử lượt tập | |
+| 9 | Tìm kiếm đa tiêu chí | Mã **khớp chính xác**; tên/SĐT khớp gần đúng; lọc theo trạng thái, loại, mã gói |
+| 10 | Sắp xếp | 5 tiêu chí, tăng/giảm; chỉ sắp xếp để hiển thị, không đổi dữ liệu gốc |
+| 11 | Thống kê & doanh thu | Doanh thu = tổng `Transaction`; tỷ lệ tham gia = HV còn hạn có ≥1 lượt tập / HV còn hạn (0% nếu không có HV còn hạn) |
+| 12 | Cảnh báo sắp hết hạn | Theo số ngày người dùng nhập |
+| 13 | Xem danh mục Gói tập & HLV | |
+| 14 | Thêm Gói tập | Kiểm tra mã trùng, thời hạn ≥ 1, giá ≥ 0 |
+| 15 | Thêm HLV | Kiểm tra mã trùng, SĐT, phí ≥ 0 |
+| 16 | Xuất báo cáo CSV | `bao_cao_hoi_vien.csv` (UTF-8 BOM, mở được bằng Excel) |
+| 17 | Lưu JSON thủ công | Ghi atomic qua file tạm; file hỏng được sao lưu `.bak`, không bị ghi đè |
+
+## 6. Quy ước nghiệp vụ đã thống nhất
+- **Tháng tập** = tháng lịch (01/01 + 12 tháng = 01/01 năm sau; 31/01 + 1 tháng = 28/29/02).
+- **Học phí Basic** = giá gói × (1 − giảm giá) + phí HLV × số tháng.
+- **Học phí Premium** = giá gói + phí VIP × số tháng + phí HLV × số tháng × (1 − ưu đãi HLV).
+- **Mã dùng lại**: mã hội viên đã có lịch sử giao dịch/lượt tập không được tạo lại.

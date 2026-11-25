@@ -17,8 +17,8 @@ import tempfile
 
 from datetime import datetime, timedelta
 
-# Import các lớp được định nghĩa trong gym_management.py
-from gym_management import (
+# Import các lớp thực thể từ models.py (tránh import vòng với gym_management.py)
+from models import (
     Plan,
     Trainer,
     BasicMember,
@@ -32,7 +32,10 @@ from gym_management import (
 # 1. CẤU HÌNH FILE DỮ LIỆU
 # ==========================================================
 
-DATA_FILE = "gym_data.json"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Đường dẫn tuyệt đối: không phụ thuộc thư mục đang đứng khi chạy chương trình
+DATA_FILE = os.path.join(BASE_DIR, "data", "gym_data.json")
 
 
 # ==========================================================
@@ -295,14 +298,14 @@ def save_data(data, filename=DATA_FILE):
             delete=False
         ) as file:
 
+            temp_path = file.name  # gán ngay để còn xóa được nếu dump lỗi
+
             json.dump(
                 json_data,
                 file,
                 ensure_ascii=False,
                 indent=4
             )
-
-            temp_path = file.name
 
         # Thay thế file cũ bằng file mới
         os.replace(temp_path, filename)

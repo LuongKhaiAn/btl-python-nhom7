@@ -1,25 +1,13 @@
-import importlib.util
-import os
+"""
+long_crud.py
+LongGymManager (phần của Long): xóa an toàn, phân công HLV, thêm gói/HLV, cảnh báo sắp hết hạn.
+Chạy chương trình đầy đủ bằng: python main.py
+"""
+
 from datetime import datetime
 
-# =====================================================================
-# KẾT NỐI TRỰC TIẾP VỚI FILE 'gym_management (1).py' CỦA AN
-# =====================================================================
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-BASE_FILE_PATH = os.path.join(CURRENT_DIR, "gym_management.py")
-
-spec = importlib.util.spec_from_file_location("base_gym", BASE_FILE_PATH)
-base_gym = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(base_gym)
-
-Plan = base_gym.Plan
-Trainer = base_gym.Trainer
-Member = base_gym.Member
-BasicMember = base_gym.BasicMember
-PremiumMember = base_gym.PremiumMember
-WorkoutSession = base_gym.WorkoutSession
-Transaction = base_gym.Transaction
-BaseGymManager = base_gym.GymManager
+from gym_management import GymManager as BaseGymManager, is_valid_phone
+from models import Plan, Trainer
 
 
 # =====================================================================
@@ -43,7 +31,7 @@ class LongGymManager(BaseGymManager):
             return
 
         member_id = input("Nhập mã hội viên cần xóa: ").strip()
-        member = next((m for m in self.members if m.member_id.lower() == member_id.lower()), None)
+        member = self.find_member(member_id)
         if not member:
             print(f"Không tìm thấy hội viên có mã '{member_id}'!")
             return
@@ -71,7 +59,9 @@ class LongGymManager(BaseGymManager):
         confirm = input(f"Bạn có chắc chắn muốn xóa hội viên '{member.full_name}' ({member.member_id})? (y/n): ").strip().lower()
         if confirm == "y":
             self.members.remove(member)
-            print(f"Đã xóa hội viên '{member.member_id}' khỏi danh sách (lịch sử giao dịch được giữ lại để bảo toàn doanh thu).")
+            print(f"Đã xóa hội viên '{member.member_id}' khỏi danh sách "
+                  "(lịch sử giao dịch/lượt tập được giữ lại để bảo toàn doanh thu; "
+                  "mã này sẽ không được dùng lại cho hội viên mới).")
             self.save_data()
         else:
             print("Đã hủy thao tác xóa.")
@@ -84,7 +74,7 @@ class LongGymManager(BaseGymManager):
             return
 
         member_id = input("Nhập mã hội viên cần phân công HLV: ").strip()
-        member = next((m for m in self.members if m.member_id.lower() == member_id.lower()), None)
+        member = self.find_member(member_id)
         if not member:
             print(f"Không tìm thấy hội viên '{member_id}'!")
             return
@@ -102,7 +92,7 @@ class LongGymManager(BaseGymManager):
             member.trainer = None
             print(f"Đã chuyển hội viên '{member.full_name}' sang hình thức Tự tập.")
         else:
-            selected_trainer = next((t for t in self.trainers if t.trainer_id.lower() == trainer_id.lower()), None)
+            selected_trainer = self.find_trainer(trainer_id)
             if not selected_trainer:
                 print(f"Lỗi: Không tìm thấy HLV có mã '{trainer_id}'!")
                 return
@@ -135,7 +125,7 @@ class LongGymManager(BaseGymManager):
         if not plan_id:
             print("Lỗi: Mã gói tập không được để trống!")
             return
-        if any(p.plan_id.lower() == plan_id.lower() for p in self.plans):
+        if self.find_plan(plan_id):
             print(f"Lỗi: Mã gói '{plan_id}' đã tồn tại!")
             return
 
@@ -157,7 +147,11 @@ class LongGymManager(BaseGymManager):
             print("Lỗi: Thời hạn và giá gói phải là số hợp lệ!")
             return
 
-        new_plan = Plan(plan_id, plan_name, duration_months, price)
+        try:
+            new_plan = Plan(plan_id, plan_name, duration_months, price)
+        except ValueError as err:
+            print(f"Lỗi: {err}")
+            return
         self.plans.append(new_plan)
         print(f"Đã thêm gói tập '{plan_name}' thành công!")
         self.save_data()
@@ -169,7 +163,7 @@ class LongGymManager(BaseGymManager):
         if not trainer_id:
             print("Lỗi: Mã HLV không được để trống!")
             return
-        if any(t.trainer_id.lower() == trainer_id.lower() for t in self.trainers):
+        if self.find_trainer(trainer_id):
             print(f"Lỗi: Mã HLV '{trainer_id}' đã tồn tại!")
             return
 
@@ -183,7 +177,10 @@ class LongGymManager(BaseGymManager):
             print("Lỗi: Chuyên môn không được để trống!")
             return
 
-        phone_number = input("Nhập số điện thoại HLV: ").strip()
+        phone_number = input("Nhập số điện thoại HLV (10 số, bắt đầu bằng 0): ").strip()
+        if not is_valid_phone(phone_number):
+            print("Lỗi: Số điện thoại không hợp lệ (cần đúng 10 chữ số, bắt đầu bằng 0)!")
+            return
         try:
             monthly_fee = float(input("Nhập phí thuê HLV/tháng (VNĐ >= 0): ").strip())
             if monthly_fee < 0:
@@ -193,7 +190,11 @@ class LongGymManager(BaseGymManager):
             print("Lỗi: Phí thuê HLV phải là số hợp lệ!")
             return
 
-        new_trainer = Trainer(trainer_id, full_name, specialty, phone_number, monthly_fee)
+        try:
+            new_trainer = Trainer(trainer_id, full_name, specialty, phone_number, monthly_fee)
+        except ValueError as err:
+            print(f"Lỗi: {err}")
+            return
         self.trainers.append(new_trainer)
         print(f"Đã thêm huấn luyện viên '{full_name}' thành công!")
         self.save_data()
@@ -231,57 +232,3 @@ class LongGymManager(BaseGymManager):
                 f" - [{day_txt:<15}] {m.member_id:<5} | {m.full_name:<18} | "
                 f"SĐT: {m.phone_number:<11} | Hết hạn: {m.expiry_date.strftime('%d/%m/%Y')}"
             )
-
-
-# =====================================================================
-# MENU CHẠY THỬ PHẦN CỦA LONG
-# =====================================================================
-if __name__ == "__main__":
-    manager = LongGymManager()
-    while True:
-        print("\n==================================================")
-        print("      CHƯƠNG TRÌNH QUẢN LÝ NGHIỆP VỤ - LONG")
-        print("==================================================")
-        print(" 1. Xem danh sách hội viên")
-        print(" 2. Thêm hội viên mới (Basic / Premium)")
-        print(" 3. Cập nhật thông tin hội viên")
-        print(" 4. Xóa hội viên (Kiểm tra dữ liệu liên quan)")
-        print(" 5. Phân công / thay đổi Huấn luyện viên (PT)")
-        print(" 6. Gia hạn gói tập")
-        print(" 7. Ghi nhận lượt tập (Check-in)")
-        print(" 8. Xem danh mục Gói tập & Huấn luyện viên")
-        print(" 9. Thêm Gói tập mới")
-        print("10. Thêm Huấn luyện viên mới")
-        print("11. Cảnh báo hội viên sắp hết hạn (Mở rộng 1)")
-        print(" 0. Thoát chương trình")
-        print("--------------------------------------------------")
-        choice = input("Nhập lựa chọn (0-11): ").strip()
-
-        if choice == "1":
-            manager.view_members()
-        elif choice == "2":
-            manager.add_member()
-        elif choice == "3":
-            manager.update_member()
-        elif choice == "4":
-            manager.delete_member()
-        elif choice == "5":
-            manager.assign_trainer()
-        elif choice == "6":
-            manager.renew_membership()
-        elif choice == "7":
-            manager.record_checkin()
-        elif choice == "8":
-            manager.view_plans_and_trainers()
-        elif choice == "9":
-            manager.add_plan()
-        elif choice == "10":
-            manager.add_trainer()
-        elif choice == "11":
-            manager.warn_expiring_members()
-        elif choice == "0":
-            manager.save_data()
-            print("Đã lưu dữ liệu vào 'gym_data.json'. Tạm biệt!")
-            break
-        else:
-            print("Lựa chọn không hợp lệ, vui lòng chọn từ 0 đến 11.")

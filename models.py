@@ -12,9 +12,23 @@ Nhiệm vụ theo Phân công Giai đoạn III (Yêu cầu 1):
   Trainer, MembershipPlan, WorkoutSession, Transaction).
 """
 
+import calendar
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
+from datetime import date, datetime
 from typing import Optional, Union
+
+
+def add_months(start: datetime, months: int) -> datetime:
+    """
+    Cộng `months` tháng THEO LỊCH (không quy đổi 1 tháng = 30 ngày).
+    Nếu ngày không tồn tại ở tháng đích thì lấy ngày cuối tháng
+    (vd: 31/01 + 1 tháng = 28/02 hoặc 29/02).
+    """
+    month_index = start.month - 1 + months
+    year = start.year + month_index // 12
+    month = month_index % 12 + 1
+    day = min(start.day, calendar.monthrange(year, month)[1])
+    return start.replace(year=year, month=month, day=day)
 
 
 # ==============================================================================
@@ -256,22 +270,12 @@ class Member(ABC):
         self.plan = plan
         self.trainer = trainer
 
-        # Xử lý join_date
-        now = datetime.now()
-        if isinstance(join_date, str):
-            self.join_date = datetime.strptime(join_date, "%d/%m/%Y")
-        elif isinstance(join_date, datetime):
-            self.join_date = join_date
-        else:
-            self.join_date = now
-
-        # Xử lý expiry_date
-        if isinstance(expiry_date, str):
-            self.expiry_date = datetime.strptime(expiry_date, "%d/%m/%Y")
-        elif isinstance(expiry_date, datetime):
+        # Ngày tham gia / hết hạn: setter tự nhận datetime hoặc chuỗi dd/mm/yyyy (hoặc yyyy-mm-dd)
+        self.join_date = join_date if join_date is not None else datetime.now()
+        if expiry_date is not None:
             self.expiry_date = expiry_date
         else:
-            self.expiry_date = self.join_date + timedelta(days=self.plan.duration_months * 30)
+            self.expiry_date = add_months(self.join_date, self.plan.duration_months)
 
     # --- Đóng gói: Properties & Setters với kiểm tra hợp lệ ---
     @property
@@ -359,7 +363,7 @@ class Member(ABC):
             raise ValueError("Ngày hết hạn phải là đối tượng datetime hoặc chuỗi định dạng dd/mm/yyyy.")
 
     # --- Nghiệp vụ kiểm tra hạn & gia hạn khớp đề bài ---
-    def check_expiry(self, current_date: Optional[Union[datetime, datetime.date]] = None) -> bool:
+    def check_expiry(self, current_date: Optional[Union[datetime, date]] = None) -> bool:
         """
         Kiểm tra trạng thái hạn sử dụng của hội viên khớp yêu cầu đề bài.
         Trả về True nếu còn hạn (expiry_date >= current_date), False nếu đã hết hạn.
@@ -379,16 +383,14 @@ class Member(ABC):
     def renew(self, plan: MembershipPlan):
         """
         Gia hạn thẻ theo đúng quy ước nghiệp vụ:
-        - Nếu còn hạn: cộng dồn thời hạn nối tiếp từ expiry_date hiện tại.
+        - Nếu còn hạn: cộng dồn thời hạn nối tiếp từ expiry_date hiện tại (cộng theo tháng lịch).
         - Nếu đã hết hạn: thời hạn mới được tính bắt đầu từ ngày hiện tại.
         """
         self.plan = plan
-        now = datetime.now()
-        extension_days = plan.duration_months * 30
         if self.check_expiry():
-            self._expiry_date = self._expiry_date + timedelta(days=extension_days)
+            self._expiry_date = add_months(self._expiry_date, plan.duration_months)
         else:
-            self._expiry_date = now + timedelta(days=extension_days)
+            self._expiry_date = add_months(datetime.now(), plan.duration_months)
 
     # --- Phương thức trừu tượng (Đa hình) ---
     @abstractmethod

@@ -81,16 +81,12 @@ def _hien_thi_danh_sach(manager, danh_sach):
 
 
 def _lay_luot_tap(manager):
-    """Hỗ trợ dữ liệu theo thiết kế mới và phiên bản code mẫu của An."""
-    if hasattr(manager, "attendance_records"):
-        return manager.attendance_records
+    """Danh sách lượt tập (WorkoutSession) của hệ thống."""
     return getattr(manager, "workout_sessions", [])
 
 
 def _lay_giao_dich(manager):
     """Đọc giao dịch thực thu; không suy diễn doanh thu từ phí hội viên hiện tại."""
-    if hasattr(manager, "payments"):
-        return manager.payments
     return getattr(manager, "transactions", [])
 
 
@@ -102,7 +98,7 @@ def _gia_tri(record, ten_truong, mac_dinh=None):
 
 
 class GymAnalyticsMixin:
-    """Ba hàm phân tích cho GymManager; không phụ thuộc phần CRUD."""
+    """Ba hàm phân tích (tìm kiếm, sắp xếp, thống kê); GymManager kế thừa mixin này."""
 
     def search_members(self):
         """Tìm kiếm theo mã/tên/SĐT, trạng thái, loại hội viên hoặc plan_id."""
@@ -110,7 +106,7 @@ class GymAnalyticsMixin:
         print("1. Tìm theo mã, tên hoặc số điện thoại")
         print("2. Lọc theo trạng thái còn hạn / hết hạn")
         print("3. Lọc theo loại hội viên Basic / Premium")
-        print("4. Lọc theo mã gói tập (plan_id) [bổ sung của Văn]")
+        print("4. Lọc theo mã gói tập (plan_id)")
         lua_chon = _nhap_lua_chon("Chọn tiêu chí (1-4): ", {"1", "2", "3", "4"})
 
         if lua_chon == "1":
@@ -118,9 +114,10 @@ class GymAnalyticsMixin:
             if not tu_khoa:
                 print("Từ khóa tìm kiếm không được để trống!")
                 return []
+            # Mã: khớp CHÍNH XÁC (HV1 không ra HV10); tên và SĐT: khớp gần đúng (chuỗi con)
             ket_qua = [
                 m for m in self.members
-                if tu_khoa in str(getattr(m, "member_id", "")).casefold()
+                if tu_khoa == str(getattr(m, "member_id", "")).casefold()
                 or tu_khoa in str(getattr(m, "full_name", "")).casefold()
                 or tu_khoa in str(getattr(m, "phone_number", "")).casefold()
             ]
@@ -152,11 +149,14 @@ class GymAnalyticsMixin:
     def sort_members(self):
         """Sắp xếp theo 5 tiêu chí; tất cả đều hỗ trợ tăng và giảm dần."""
         print("\n============ SẮP XẾP HỘI VIÊN ============")
+        if not self.members:
+            print("Danh sách hội viên đang trống, không có gì để sắp xếp.")
+            return []
         print("1. Mã hội viên")
         print("2. Tên hội viên")
         print("3. Ngày hết hạn")
         print("4. Ngày tham gia")
-        print("5. Phí hội viên (calculate_membership_fee) [bổ sung của Văn]")
+        print("5. Phí hội viên (calculate_membership_fee)")
         tieu_chi = _nhap_lua_chon("Chọn tiêu chí (1-5): ", {"1", "2", "3", "4", "5"})
 
         print("1. Tăng dần (A-Z / thấp đến cao / sớm đến muộn)")
@@ -181,13 +181,11 @@ class GymAnalyticsMixin:
             # Đây là phí theo tính đa hình của BasicMember/PremiumMember.
             khoa = lambda m: float(m.calculate_membership_fee())
 
-        self.members.sort(key=khoa, reverse=giam_dan)
+        # Sắp xếp trên bản sao để HIỂN THỊ; không đổi thứ tự dữ liệu gốc, không ghi lại file
+        ket_qua = sorted(self.members, key=khoa, reverse=giam_dan)
         print("\nĐã sắp xếp " + ("giảm dần" if giam_dan else "tăng dần") + ".")
-        _hien_thi_danh_sach(self, self.members)
-        # Lưu thứ tự theo quy trình hiện tại nếu lớp quản lý có save_data().
-        if callable(getattr(self, "save_data", None)):
-            self.save_data()
-        return self.members
+        _hien_thi_danh_sach(self, ket_qua)
+        return ket_qua
 
     def statistics_menu(self):
         """Thống kê hội viên, doanh thu thực thu và tỷ lệ tham gia tập.
@@ -248,16 +246,3 @@ class GymAnalyticsMixin:
             "total_revenue": doanh_thu,
             "total_transactions": len(giao_dich),
         }
-
-
-def install_analytics(gym_manager_class):
-    """Ghép 3 chức năng vào class GymManager hiện có mà không sửa file gốc.
-
-    Ví dụ để chạy thử trên code An:
-        from gym_analytics import install_analytics
-        install_analytics(GymManager)
-    Khi nhóm đã tách module, nên dùng kế thừa GymAnalyticsMixin thay vì cài động.
-    """
-    for ten_ham in ("search_members", "sort_members", "statistics_menu"):
-        setattr(gym_manager_class, ten_ham, getattr(GymAnalyticsMixin, ten_ham))
-    return gym_manager_class
