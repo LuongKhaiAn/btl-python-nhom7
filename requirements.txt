@@ -1,0 +1,6 @@
+# Dự án sử dụng thư viện chuẩn của Python (Python Standard Library) >= 3.8:
+# - abc, datetime, json, os, sys, typing, unittest
+
+# Công cụ kiểm thử và tài liệu (tùy chọn):
+# pytest>=7.0.0
+# openpyxl>=3.0.0
