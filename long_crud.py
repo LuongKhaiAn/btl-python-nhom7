@@ -6,7 +6,8 @@ Chạy chương trình đầy đủ bằng: python main.py
 
 from datetime import datetime
 
-from gym_management import GymManager as BaseGymManager, is_valid_phone
+from gym_management import GymManager as BaseGymManager
+from gym_management import is_valid_phone
 from models import Plan, Trainer
 
 
@@ -40,28 +41,48 @@ class LongGymManager(BaseGymManager):
         member.display_info()
 
         # Kiểm tra các ràng buộc dữ liệu liên quan trong hệ thống của An
-        related_txs = [tx for tx in self.transactions if tx.member_id.lower() == member.member_id.lower()]
-        related_sessions = [s for s in self.workout_sessions if s.member_id.lower() == member.member_id.lower()]
+        related_txs = [
+            tx
+            for tx in self.transactions
+            if tx.member_id.lower() == member.member_id.lower()
+        ]
+        related_sessions = [
+            s
+            for s in self.workout_sessions
+            if s.member_id.lower() == member.member_id.lower()
+        ]
         warnings = []
 
         if member.is_active():
-            warnings.append(f"Thẻ tập vẫn ĐANG CÒN HẠN đến ngày {member.expiry_date.strftime('%d/%m/%Y')}")
+            warnings.append(
+                f"Thẻ tập vẫn ĐANG CÒN HẠN đến ngày {member.expiry_date.strftime('%d/%m/%Y')}"
+            )
         if related_txs:
             warnings.append(f"Có {len(related_txs)} giao dịch thanh toán liên quan")
         if related_sessions:
-            warnings.append(f"Có {len(related_sessions)} lượt check-in tập luyện liên quan")
+            warnings.append(
+                f"Có {len(related_sessions)} lượt check-in tập luyện liên quan"
+            )
 
         if warnings:
             print("\n⚠️ CẢNH BÁO DỮ LIỆU LIÊN QUAN:")
             for w in warnings:
                 print(f" - {w}")
 
-        confirm = input(f"Bạn có chắc chắn muốn xóa hội viên '{member.full_name}' ({member.member_id})? (y/n): ").strip().lower()
+        confirm = (
+            input(
+                f"Bạn có chắc chắn muốn xóa hội viên '{member.full_name}' ({member.member_id})? (y/n): "
+            )
+            .strip()
+            .lower()
+        )
         if confirm == "y":
             self.members.remove(member)
-            print(f"Đã xóa hội viên '{member.member_id}' khỏi danh sách "
-                  "(lịch sử giao dịch/lượt tập được giữ lại để bảo toàn doanh thu; "
-                  "mã này sẽ không được dùng lại cho hội viên mới).")
+            print(
+                f"Đã xóa hội viên '{member.member_id}' khỏi danh sách "
+                "(lịch sử giao dịch/lượt tập được giữ lại để bảo toàn doanh thu; "
+                "mã này sẽ không được dùng lại cho hội viên mới)."
+            )
             self.save_data()
         else:
             print("Đã hủy thao tác xóa.")
@@ -79,8 +100,12 @@ class LongGymManager(BaseGymManager):
             print(f"Không tìm thấy hội viên '{member_id}'!")
             return
 
-        current_trainer = member.trainer.full_name if member.trainer else "Tự tập (Chưa có HLV)"
-        print(f"Hội viên: {member.full_name} ({member.get_member_type()}) | HLV hiện tại: {current_trainer}")
+        current_trainer = (
+            member.trainer.full_name if member.trainer else "Tự tập (Chưa có HLV)"
+        )
+        print(
+            f"Hội viên: {member.full_name} ({member.get_member_type()}) | HLV hiện tại: {current_trainer}"
+        )
 
         print("\n--- Danh sách Huấn luyện viên hiện có ---")
         print("0    | Hủy HLV (Chuyển sang tự tập)")
@@ -97,8 +122,12 @@ class LongGymManager(BaseGymManager):
                 print(f"Lỗi: Không tìm thấy HLV có mã '{trainer_id}'!")
                 return
             member.trainer = selected_trainer
-            print(f"Đã phân công HLV '{selected_trainer.full_name}' cho hội viên '{member.full_name}'.")
-            print(f"Học phí cập nhật mới của hội viên: {member.calculate_membership_fee():,.0f} VNĐ")
+            print(
+                f"Đã phân công HLV '{selected_trainer.full_name}' cho hội viên '{member.full_name}'."
+            )
+            print(
+                f"Học phí cập nhật mới của hội viên: {member.calculate_membership_fee():,.0f} VNĐ"
+            )
 
         self.save_data()
 
@@ -179,7 +208,9 @@ class LongGymManager(BaseGymManager):
 
         phone_number = input("Nhập số điện thoại HLV (10 số, bắt đầu bằng 0): ").strip()
         if not is_valid_phone(phone_number):
-            print("Lỗi: Số điện thoại không hợp lệ (cần đúng 10 chữ số, bắt đầu bằng 0)!")
+            print(
+                "Lỗi: Số điện thoại không hợp lệ (cần đúng 10 chữ số, bắt đầu bằng 0)!"
+            )
             return
         try:
             monthly_fee = float(input("Nhập phí thuê HLV/tháng (VNĐ >= 0): ").strip())
@@ -191,7 +222,9 @@ class LongGymManager(BaseGymManager):
             return
 
         try:
-            new_trainer = Trainer(trainer_id, full_name, specialty, phone_number, monthly_fee)
+            new_trainer = Trainer(
+                trainer_id, full_name, specialty, phone_number, monthly_fee
+            )
         except ValueError as err:
             print(f"Lỗi: {err}")
             return
@@ -221,11 +254,15 @@ class LongGymManager(BaseGymManager):
                 expiring_list.append((m, days_left))
 
         if not expiring_list:
-            print(f"Không có hội viên nào sắp hết hạn trong vòng {days_threshold} ngày tới.")
+            print(
+                f"Không có hội viên nào sắp hết hạn trong vòng {days_threshold} ngày tới."
+            )
             return
 
         expiring_list.sort(key=lambda item: item[1])
-        print(f"\n⚠️ CÓ {len(expiring_list)} HỘI VIÊN SẮP HẾT HẠN TRONG {days_threshold} NGÀY TỚI:")
+        print(
+            f"\n⚠️ CÓ {len(expiring_list)} HỘI VIÊN SẮP HẾT HẠN TRONG {days_threshold} NGÀY TỚI:"
+        )
         for m, days_left in expiring_list:
             day_txt = "HẾT HẠN HÔM NAY" if days_left == 0 else f"Còn {days_left} ngày"
             print(

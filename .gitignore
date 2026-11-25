@@ -47,6 +47,7 @@ coverage.xml
 test_gym_storage.json
 *.bak
 bao_cao_hoi_vien.csv
+.ruff_cache/
 
 # IDE & OS files
 .DS_Store

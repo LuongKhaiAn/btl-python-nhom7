@@ -14,16 +14,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 
-import csv  # noqa: E402
-import contextlib  # noqa: E402
-import io  # noqa: E402
-import json  # noqa: E402
+import contextlib
+import csv
+import io
+import json
 
-import data_handler  # noqa: E402
-import gym_management  # noqa: E402
-from gym_app import FullGymManager  # noqa: E402
-from gym_management import GymManager, is_valid_phone, next_id  # noqa: E402
-from models import (  # noqa: E402
+import data_handler
+import gym_management
+from gym_app import FullGymManager
+from gym_management import GymManager, is_valid_phone, next_id
+from models import (
     BasicMember,
     Member,
     MembershipPlan,
@@ -71,15 +71,27 @@ class TestAbstractionAndPolymorphism(unittest.TestCase):
             Member("HV01", "A", "0900000000", make_plan())  # type: ignore[abstract]
 
     def test_basic_fee_with_discount_and_trainer(self):
-        m = BasicMember("HV01", "A", "0900000000", make_plan(3, 1350000),
-                        make_trainer(500000), discount_rate=0.05)
+        m = BasicMember(
+            "HV01",
+            "A",
+            "0900000000",
+            make_plan(3, 1350000),
+            make_trainer(500000),
+            discount_rate=0.05,
+        )
         # 1.350.000 * 0.95 + 500.000 * 3
         self.assertAlmostEqual(m.calculate_membership_fee(), 2782500.0)
 
     def test_premium_fee_with_vip_and_trainer_discount(self):
-        m = PremiumMember("HV02", "B", "0900000001", make_plan(6, 2500000),
-                          make_trainer(600000), vip_perks_fee=200000,
-                          trainer_discount_rate=0.2)
+        m = PremiumMember(
+            "HV02",
+            "B",
+            "0900000001",
+            make_plan(6, 2500000),
+            make_trainer(600000),
+            vip_perks_fee=200000,
+            trainer_discount_rate=0.2,
+        )
         # 2.500.000 + 200.000*6 + 600.000*6*0.8
         self.assertAlmostEqual(m.calculate_membership_fee(), 6580000.0)
 
@@ -92,22 +104,25 @@ class TestAbstractionAndPolymorphism(unittest.TestCase):
 
 class TestBusinessRules(unittest.TestCase):
     def test_check_expiry(self):
-        m = BasicMember("HV01", "A", "0900000000", make_plan(),
-                        expiry_date="10/01/2030")
+        m = BasicMember(
+            "HV01", "A", "0900000000", make_plan(), expiry_date="10/01/2030"
+        )
         self.assertTrue(m.check_expiry(datetime(2029, 12, 31)))
         self.assertTrue(m.check_expiry(datetime(2030, 1, 10)))
         self.assertFalse(m.check_expiry(datetime(2030, 1, 11)))
 
     def test_renew_active_member_accumulates(self):
         future = datetime.now() + timedelta(days=10)
-        m = BasicMember("HV01", "A", "0900000000", make_plan(1, 500000),
-                        expiry_date=future)
+        m = BasicMember(
+            "HV01", "A", "0900000000", make_plan(1, 500000), expiry_date=future
+        )
         m.renew(make_plan(1, 500000))
         self.assertEqual(m.expiry_date, add_months(future, 1))
 
     def test_renew_expired_member_starts_from_today(self):
-        m = BasicMember("HV01", "A", "0900000000", make_plan(1, 500000),
-                        expiry_date="01/01/2020")
+        m = BasicMember(
+            "HV01", "A", "0900000000", make_plan(1, 500000), expiry_date="01/01/2020"
+        )
         before = datetime.now()
         m.renew(make_plan(1, 500000))
         self.assertGreaterEqual(m.expiry_date, add_months(before, 1))
@@ -116,12 +131,25 @@ class TestBusinessRules(unittest.TestCase):
 
 class TestPersistence(unittest.TestCase):
     def test_member_dict_roundtrip(self):
-        basic = BasicMember("HV01", "A", "0900000000", make_plan(),
-                            make_trainer(), join_date="01/10/2026",
-                            expiry_date="01/01/2027", discount_rate=0.1)
-        premium = PremiumMember("HV02", "B", "0900000001", make_plan(6, 2500000),
-                                None, join_date="01/10/2026",
-                                expiry_date="01/04/2027")
+        basic = BasicMember(
+            "HV01",
+            "A",
+            "0900000000",
+            make_plan(),
+            make_trainer(),
+            join_date="01/10/2026",
+            expiry_date="01/01/2027",
+            discount_rate=0.1,
+        )
+        premium = PremiumMember(
+            "HV02",
+            "B",
+            "0900000001",
+            make_plan(6, 2500000),
+            None,
+            join_date="01/10/2026",
+            expiry_date="01/04/2027",
+        )
         for original in (basic, premium):
             restored = Member.from_dict(original.to_dict())
             self.assertIs(type(restored), type(original))
@@ -148,8 +176,10 @@ class TestPersistence(unittest.TestCase):
             os.makedirs(other_cwd)
             try:
                 os.chdir(other_cwd)
-                with mock.patch.object(gym_management, "DEFAULT_DATA_FILE", target), \
-                        mock.patch("builtins.print"):
+                with (
+                    mock.patch.object(gym_management, "DEFAULT_DATA_FILE", target),
+                    mock.patch("builtins.print"),
+                ):
                     manager = GymManager()
                 self.assertEqual(manager.data_file, target)
                 # Không được tạo thư mục data/ ở thư mục đang đứng
@@ -167,7 +197,9 @@ class TestCalendarMonths(unittest.TestCase):
         self.assertEqual(add_months(datetime(2028, 1, 31), 1), datetime(2028, 2, 29))
 
     def test_default_expiry_uses_calendar_months(self):
-        m = BasicMember("HV01", "A", "0900000000", make_plan(12, 4500000), join_date="01/01/2026")
+        m = BasicMember(
+            "HV01", "A", "0900000000", make_plan(12, 4500000), join_date="01/01/2026"
+        )
         self.assertEqual(m.expiry_date, datetime(2027, 1, 1))
 
 
@@ -191,27 +223,37 @@ class ManagerTestCase(unittest.TestCase):
         self.path = os.path.join(self.tmp.name, "data", "gym.json")
         with mock.patch("builtins.print"):
             self.gm = FullGymManager(data_file=self.path)
-        self.plan = self.gm.plans[1]       # P03
+        self.plan = self.gm.plans[1]  # P03
         self.trainer = self.gm.trainers[0]  # T01
         self.gm.members, self.gm.transactions, self.gm.workout_sessions = [], [], []
 
     def run_with_input(self, func, *answers):
         out = io.StringIO()
-        with mock.patch("builtins.input", side_effect=list(answers)), \
-                contextlib.redirect_stdout(out):
+        with (
+            mock.patch("builtins.input", side_effect=list(answers)),
+            contextlib.redirect_stdout(out),
+        ):
             result = func()
         return out.getvalue(), result
 
     def add_basic(self, member_id="HV01", expiry="01/01/2099", phone="0900000001"):
-        m = BasicMember(member_id, "Nguyen Test", phone, self.plan,
-                        expiry_date=expiry, join_date="01/01/2026")
+        m = BasicMember(
+            member_id,
+            "Nguyen Test",
+            phone,
+            self.plan,
+            expiry_date=expiry,
+            join_date="01/01/2026",
+        )
         self.gm.members.append(m)
         return m
 
 
 class TestAddAndValidation(ManagerTestCase):
     def test_add_member_creates_transaction_and_saves(self):
-        self.run_with_input(self.gm.add_member, "HV10", "Le Van B", "0911222333", "1", "P03", "T01")
+        self.run_with_input(
+            self.gm.add_member, "HV10", "Le Van B", "0911222333", "1", "P03", "T01"
+        )
         self.assertEqual(len(self.gm.members), 1)
         self.assertEqual(self.gm.transactions[0].transaction_id, "GD001")
         self.assertAlmostEqual(self.gm.transactions[0].amount, 1350000 + 500000 * 3)
@@ -220,18 +262,24 @@ class TestAddAndValidation(ManagerTestCase):
 
     def test_add_member_rejects_bad_phone_duplicate_and_bad_trainer(self):
         # SĐT sai -> hỏi lại; nhập đúng ở lần 2 thì tạo hội viên
-        self.run_with_input(self.gm.add_member, "HV10", "A", "abc", "0911222333", "1", "P03", "0")
+        self.run_with_input(
+            self.gm.add_member, "HV10", "A", "abc", "0911222333", "1", "P03", "0"
+        )
         self.assertEqual(len(self.gm.members), 1)
         self.gm.members.clear()
         self.add_basic("HV10")
         out, _ = self.run_with_input(self.gm.add_member, "hv10")
         self.assertIn("đã tồn tại", out)
-        self.run_with_input(self.gm.add_member, "HV11", "A", "0911222333", "1", "P03", "T99")
+        self.run_with_input(
+            self.gm.add_member, "HV11", "A", "0911222333", "1", "P03", "T99"
+        )
         self.assertEqual(len(self.gm.members), 1)
 
     def test_deleted_member_id_cannot_be_reused(self):
         self.add_basic("HV01")
-        self.gm.transactions.append(Transaction("GD001", "HV01", 1000, "Đăng ký mới", "3 Tháng"))
+        self.gm.transactions.append(
+            Transaction("GD001", "HV01", 1000, "Đăng ký mới", "3 Tháng")
+        )
         self.run_with_input(self.gm.delete_member, "HV01", "y")
         self.assertEqual(self.gm.members, [])
         out, _ = self.run_with_input(self.gm.add_member, "HV01")
@@ -253,7 +301,9 @@ class TestAddAndValidation(ManagerTestCase):
 class TestRenewCheckinAssign(ManagerTestCase):
     def test_renew_creates_transaction_with_new_id(self):
         m = self.add_basic("HV01", expiry="01/01/2020")
-        self.gm.transactions.append(Transaction("GD005", "HV01", 1, "Đăng ký mới", "1 Tháng"))
+        self.gm.transactions.append(
+            Transaction("GD005", "HV01", 1, "Đăng ký mới", "1 Tháng")
+        )
         self.run_with_input(self.gm.renew_membership, "HV01", "P01")
         self.assertTrue(m.is_active())
         self.assertEqual(self.gm.transactions[-1].transaction_id, "GD006")
@@ -269,7 +319,7 @@ class TestRenewCheckinAssign(ManagerTestCase):
         self.add_basic("HV01")
         self.run_with_input(self.gm.record_checkin, "HV01", "")
         self.assertEqual(len(self.gm.workout_sessions), 1)
-        self.run_with_input(self.gm.record_checkin, "HV01", "n")      # từ chối lượt thứ 2
+        self.run_with_input(self.gm.record_checkin, "HV01", "n")  # từ chối lượt thứ 2
         self.assertEqual(len(self.gm.workout_sessions), 1)
         self.run_with_input(self.gm.record_checkin, "HV01", "y", "")  # đồng ý
         self.assertEqual(len(self.gm.workout_sessions), 2)
@@ -286,15 +336,21 @@ class TestRenewCheckinAssign(ManagerTestCase):
 
     def test_add_plan_and_trainer_validation(self):
         n_plans, n_trainers = len(self.gm.plans), len(self.gm.trainers)
-        self.run_with_input(self.gm.add_plan, "P03")                      # trùng mã
-        self.run_with_input(self.gm.add_plan, "P09", "9 Tháng", "0", "1") # thời hạn < 1
+        self.run_with_input(self.gm.add_plan, "P03")  # trùng mã
+        self.run_with_input(
+            self.gm.add_plan, "P09", "9 Tháng", "0", "1"
+        )  # thời hạn < 1
         self.run_with_input(self.gm.add_plan, "P09", "9 Tháng", "9", "-5")
         self.assertEqual(len(self.gm.plans), n_plans)
         self.run_with_input(self.gm.add_plan, "P09", "9 Tháng", "9", "900000")
         self.assertEqual(len(self.gm.plans), n_plans + 1)
-        self.run_with_input(self.gm.add_trainer, "T04", "A B", "Gym", "123", "100")  # SĐT sai
+        self.run_with_input(
+            self.gm.add_trainer, "T04", "A B", "Gym", "123", "100"
+        )  # SĐT sai
         self.assertEqual(len(self.gm.trainers), n_trainers)
-        self.run_with_input(self.gm.add_trainer, "T04", "A B", "Gym", "0900000000", "100000")
+        self.run_with_input(
+            self.gm.add_trainer, "T04", "A B", "Gym", "0900000000", "100000"
+        )
         self.assertEqual(len(self.gm.trainers), n_trainers + 1)
 
     def test_warn_expiring_members(self):
@@ -357,13 +413,20 @@ class TestSearchSortStatistics(ManagerTestCase):
         self.add_basic("HV1")
         self.add_basic("HV2", phone="0900000002")
         self.add_basic("HV3", expiry="01/01/2020", phone="0900000003")
-        self.gm.workout_sessions = [WorkoutSession("LT001", "HV1"), WorkoutSession("LT002", "HV1"),
-                                    WorkoutSession("LT003", "HV3")]
-        self.gm.transactions = [Transaction("GD001", "HV1", 1000, "Đăng ký mới", "3 Tháng"),
-                                Transaction("GD002", "HV2", 500, "Đăng ký mới", "3 Tháng")]
+        self.gm.workout_sessions = [
+            WorkoutSession("LT001", "HV1"),
+            WorkoutSession("LT002", "HV1"),
+            WorkoutSession("LT003", "HV3"),
+        ]
+        self.gm.transactions = [
+            Transaction("GD001", "HV1", 1000, "Đăng ký mới", "3 Tháng"),
+            Transaction("GD002", "HV2", 500, "Đăng ký mới", "3 Tháng"),
+        ]
         _, stats = self.run_with_input(self.gm.statistics_menu, "n")
         self.assertEqual(stats["active_members"], 2)
-        self.assertAlmostEqual(stats["attendance_rate"], 50.0)   # chỉ HV1 trong 2 hội viên còn hạn
+        self.assertAlmostEqual(
+            stats["attendance_rate"], 50.0
+        )  # chỉ HV1 trong 2 hội viên còn hạn
         self.assertAlmostEqual(stats["total_revenue"], 1500)
 
     def test_statistics_with_no_active_member_is_zero_percent(self):
@@ -399,8 +462,13 @@ class TestPersistenceSafety(unittest.TestCase):
                 manager = FullGymManager(data_file=os.path.join(tmp, "g.json"))
                 target = os.path.join(tmp, "report.csv")
                 data_handler.export_report_csv(
-                    {"members": manager.members, "workout_sessions": manager.workout_sessions,
-                     "transactions": manager.transactions}, target)
+                    {
+                        "members": manager.members,
+                        "workout_sessions": manager.workout_sessions,
+                        "transactions": manager.transactions,
+                    },
+                    target,
+                )
             with open(target, encoding="utf-8-sig", newline="") as f:
                 rows = list(csv.DictReader(f))
             self.assertEqual(len(rows), len(manager.members))

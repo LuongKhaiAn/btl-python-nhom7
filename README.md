@@ -18,12 +18,11 @@ btl-python-nhom7/
 │   └── gym_data.json                   # Dữ liệu hội viên, gói tập, HLV, lượt tập, giao dịch
 │
 ├── docs/                               # Thư mục tài liệu thiết kế & báo cáo
-│   ├── BAO_CAO_THIET_KE.md             # Báo cáo phân tích thiết kế hệ thống chi tiết
-│   ├── Chu_de_07_Bao_cao_phan_tich_he_thong.docx # Báo cáo phân tích hệ thống (Word)
+│   ├── Nhom_7_Bao_cao.docx             # Báo cáo tổng kết bài tập lớn (Word)
+│   ├── Nhom_7_Slides.pptx              # Slide thuyết trình PowerPoint
 │   ├── Bang_Phan_Cong_Lap_Trinh_Chu_De_07.xlsx    # Bảng phân công chi tiết công việc
 │   ├── Bang_Kich_Ban_Kiem_Thu_Chu_De_07_v2.xlsx   # Bảng kịch bản kiểm thử (14 test case)
-│   ├── SLIDE_OUTLINE.md                # Đề cương slide thuyết trình
-│   └── UML.drawio                      # Sơ đồ lớp UML Class Diagram & Flowchart
+│   └── UML.drawio                      # Sơ đồ lớp UML Class Diagram, Activity & DFD
 │
 ├── tests/                              # Thư mục kiểm thử tự động (Unit Tests)
 │   ├── __init__.py

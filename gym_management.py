@@ -13,10 +13,9 @@ import data_handler
 from models import (
     BasicMember,
     PremiumMember,
-    WorkoutSession,
     Transaction,
+    WorkoutSession,
 )
-
 
 # Đường dẫn dữ liệu tính theo vị trí file này (không phụ thuộc thư mục đang đứng khi chạy)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -40,7 +39,9 @@ def next_id(prefix: str, existing_ids, width: int = 3) -> str:
     return f"{prefix}{biggest + 1:0{width}d}"
 
 
-def ask(prompt: str, is_valid=None, error: str = "Giá trị không hợp lệ, vui lòng nhập lại!") -> str:
+def ask(
+    prompt: str, is_valid=None, error: str = "Giá trị không hợp lệ, vui lòng nhập lại!"
+) -> str:
     """Hỏi lại cho tới khi nhập hợp lệ (không để trống và thỏa is_valid nếu có)."""
     while True:
         value = input(prompt).strip()
@@ -123,14 +124,15 @@ class GymManager:
     def member_id_in_history(self, member_id: str) -> bool:
         """Mã đã từng có giao dịch / lượt tập (kể cả hội viên đã bị xóa)."""
         key = member_id.strip().lower()
-        return (
-            any(tx.member_id.lower() == key for tx in self.transactions)
-            or any(s.member_id.lower() == key for s in self.workout_sessions)
+        return any(tx.member_id.lower() == key for tx in self.transactions) or any(
+            s.member_id.lower() == key for s in self.workout_sessions
         )
 
     def view_members(self, member_list=None):
         target = self.members if member_list is None else member_list
-        print("\n============================== DANH SÁCH HỘI VIÊN ==============================")
+        print(
+            "\n============================== DANH SÁCH HỘI VIÊN =============================="
+        )
         if not target:
             print("Không có hội viên nào để hiển thị.")
             return
@@ -148,8 +150,10 @@ class GymManager:
             print(f"Mã '{member_id}' đã tồn tại trong hệ thống!")
             return
         if self.member_id_in_history(member_id):
-            print(f"Mã '{member_id}' đã từng được dùng (còn lịch sử giao dịch/lượt tập). "
-                  "Vui lòng chọn mã khác để tránh lẫn dữ liệu cũ!")
+            print(
+                f"Mã '{member_id}' đã từng được dùng (còn lịch sử giao dịch/lượt tập). "
+                "Vui lòng chọn mã khác để tránh lẫn dữ liệu cũ!"
+            )
             return
 
         full_name = ask("Nhập họ tên hội viên: ", error="Họ tên không được để trống!")
@@ -162,8 +166,11 @@ class GymManager:
         print("\nChọn phân loại hội viên:")
         print(" 1. Basic Member (Tập luyện thông thường)")
         print(" 2. Premium Member (VIP: Sauna, Locker, ưu đãi HLV)")
-        type_choice = ask("Lựa chọn (1 hoặc 2): ", lambda v: v in ("1", "2"),
-                          "Phân loại hội viên không hợp lệ (chỉ nhập 1 hoặc 2)!")
+        type_choice = ask(
+            "Lựa chọn (1 hoặc 2): ",
+            lambda v: v in ("1", "2"),
+            "Phân loại hội viên không hợp lệ (chỉ nhập 1 hoặc 2)!",
+        )
 
         if not self.plans:
             print("Chưa có gói tập nào. Hãy thêm gói tập trước!")
@@ -214,7 +221,9 @@ class GymManager:
 
         tx_id = next_id("GD", (tx.transaction_id for tx in self.transactions))
         self.transactions.append(
-            Transaction(tx_id, new_member.member_id, fee, "Đăng ký mới", selected_plan.plan_name)
+            Transaction(
+                tx_id, new_member.member_id, fee, "Đăng ký mới", selected_plan.plan_name
+            )
         )
 
         print(f"\nThêm hội viên '{full_name}' thành công!")
@@ -235,14 +244,18 @@ class GymManager:
         new_name = input(f"Họ tên mới [{member.full_name}]: ").strip()
         new_phone = input(f"SĐT mới [{member.phone_number}]: ").strip()
         if new_phone and not is_valid_phone(new_phone):
-            print("Số điện thoại không hợp lệ (cần đúng 10 chữ số, bắt đầu bằng 0)! Không cập nhật.")
+            print(
+                "Số điện thoại không hợp lệ (cần đúng 10 chữ số, bắt đầu bằng 0)! Không cập nhật."
+            )
             return
         if new_name:
             member.full_name = new_name
         if new_phone:
             member.phone_number = new_phone
 
-        change_trainer = input("Bạn có muốn đổi Huấn luyện viên không? (y/n): ").strip().lower()
+        change_trainer = (
+            input("Bạn có muốn đổi Huấn luyện viên không? (y/n): ").strip().lower()
+        )
         if change_trainer == "y":
             print("\nDanh sách HLV (nhập 0 để tự tập):")
             print("0    | Tự tập")
@@ -270,7 +283,13 @@ class GymManager:
             print("Không tìm thấy hội viên!")
             return
 
-        confirm = input(f"Xác nhận xóa hội viên '{member.full_name}' ({member.member_id})? (y/n): ").strip().lower()
+        confirm = (
+            input(
+                f"Xác nhận xóa hội viên '{member.full_name}' ({member.member_id})? (y/n): "
+            )
+            .strip()
+            .lower()
+        )
         if confirm == "y":
             self.members.remove(member)
             print(f"Đã xóa hội viên '{member.member_id}' khỏi hệ thống.")
@@ -304,14 +323,18 @@ class GymManager:
 
         tx_id = next_id("GD", (tx.transaction_id for tx in self.transactions))
         self.transactions.append(
-            Transaction(tx_id, member.member_id, fee, "Gia hạn gói", selected_plan.plan_name)
+            Transaction(
+                tx_id, member.member_id, fee, "Gia hạn gói", selected_plan.plan_name
+            )
         )
 
         print("\n================= KẾT QUẢ GIA HẠN =================")
         if is_still_active:
             print(f"Hội viên còn hạn -> Cộng dồn từ ngày hết hạn cũ: {old_expiry}")
         else:
-            print(f"Hội viên đã hết hạn -> Kích hoạt từ ngày hôm nay: {datetime.now().strftime('%d/%m/%Y')}")
+            print(
+                f"Hội viên đã hết hạn -> Kích hoạt từ ngày hôm nay: {datetime.now().strftime('%d/%m/%Y')}"
+            )
         print(f"👉 Ngày hết hạn mới: {new_expiry}")
         print(f"👉 Phí gia hạn thu: {fee:,.0f} VNĐ (Mã GD: {tx_id})")
         print("===================================================")
@@ -325,19 +348,24 @@ class GymManager:
             return
 
         if not member.is_active():
-            print(f"❌ CẢNH BÁO: Thẻ hội viên '{member.full_name}' đã hết hạn vào ngày {member.expiry_date.strftime('%d/%m/%Y')}!")
+            print(
+                f"❌ CẢNH BÁO: Thẻ hội viên '{member.full_name}' đã hết hạn vào ngày {member.expiry_date.strftime('%d/%m/%Y')}!"
+            )
             print("Vui lòng thực hiện gia hạn gói tập trước khi check-in vào phòng.")
             return
 
         # Quy tắc điểm danh lặp: mỗi ngày 1 lượt hợp lệ; check-in thêm phải được xác nhận
         today_text = datetime.now().strftime("%d/%m/%Y")
         done_today = [
-            s for s in self.workout_sessions
+            s
+            for s in self.workout_sessions
             if s.member_id.lower() == member.member_id.lower()
             and s.checkin_time.startswith(today_text)
         ]
         if done_today:
-            print(f"⚠️ Hội viên đã check-in {len(done_today)} lượt trong hôm nay ({today_text}).")
+            print(
+                f"⚠️ Hội viên đã check-in {len(done_today)} lượt trong hôm nay ({today_text})."
+            )
             if input("Vẫn ghi nhận thêm một lượt nữa? (y/n): ").strip().lower() != "y":
                 print("Đã hủy ghi nhận lượt tập.")
                 return
@@ -352,12 +380,16 @@ class GymManager:
         session = WorkoutSession(sid, member.member_id, notes=notes)
         self.workout_sessions.append(session)
 
-        print(f"✅ CHECK-IN THÀNH CÔNG cho hội viên: {member.full_name} ({member.get_member_type()})")
+        print(
+            f"✅ CHECK-IN THÀNH CÔNG cho hội viên: {member.full_name} ({member.get_member_type()})"
+        )
         print(f"Thời gian: {session.checkin_time} | Ghi chú: {session.notes}")
         self.save_data()
 
     def view_checkin_history(self):
-        print("\n======================= LỊCH SỬ LƯỢT TẬP (CHECK-IN) =======================")
+        print(
+            "\n======================= LỊCH SỬ LƯỢT TẬP (CHECK-IN) ======================="
+        )
         if not self.workout_sessions:
             print("Chưa có lượt tập nào được ghi nhận.")
             return

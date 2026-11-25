@@ -1,4 +1,3 @@
-
 """
 Module: data_handler.py
 Chức năng:
@@ -14,19 +13,17 @@ import csv
 import json
 import os
 import tempfile
-
 from datetime import datetime, timedelta
 
 # Import các lớp thực thể từ models.py (tránh import vòng với gym_management.py)
 from models import (
-    Plan,
-    Trainer,
     BasicMember,
+    Plan,
     PremiumMember,
+    Trainer,
     Transaction,
-    WorkoutSession
+    WorkoutSession,
 )
-
 
 # ==========================================================
 # 1. CẤU HÌNH FILE DỮ LIỆU
@@ -41,6 +38,7 @@ DATA_FILE = os.path.join(BASE_DIR, "data", "gym_data.json")
 # ==========================================================
 # 2. KHỞI TẠO DỮ LIỆU MẪU
 # ==========================================================
+
 
 def init_default_data():
     """
@@ -70,7 +68,7 @@ def init_default_data():
         Plan("P01", "1 Tháng", 1, 500000),
         Plan("P03", "3 Tháng", 3, 1350000),
         Plan("P06", "6 Tháng", 6, 2500000),
-        Plan("P12", "12 Tháng", 12, 4500000)
+        Plan("P12", "12 Tháng", 12, 4500000),
     ]
 
     plan_map = {p.plan_id: p for p in plans}
@@ -80,27 +78,9 @@ def init_default_data():
     # ------------------------------
 
     trainers = [
-        Trainer(
-            "T01",
-            "Nguyễn Văn Minh",
-            "Fitness",
-            "0901234567",
-            500000
-        ),
-        Trainer(
-            "T02",
-            "Trần Thị Lan",
-            "Yoga",
-            "0908765432",
-            600000
-        ),
-        Trainer(
-            "T03",
-            "Lê Hoàng Nam",
-            "Boxing",
-            "0912345678",
-            550000
-        )
+        Trainer("T01", "Nguyễn Văn Minh", "Fitness", "0901234567", 500000),
+        Trainer("T02", "Trần Thị Lan", "Yoga", "0908765432", 600000),
+        Trainer("T03", "Lê Hoàng Nam", "Boxing", "0912345678", 550000),
     ]
 
     trainer_map = {t.trainer_id: t for t in trainers}
@@ -127,9 +107,8 @@ def init_default_data():
             trainer_map["T01"],
             join_date=day(-30),
             expiry_date=day(60),
-            discount_rate=0.05
+            discount_rate=0.05,
         ),
-
         # 2. Premium - Còn hạn - Không có HLV
         PremiumMember(
             "HV02",
@@ -141,9 +120,8 @@ def init_default_data():
             expiry_date=day(120),
             vip_perks_fee=200000,
             sauna_access=True,
-            trainer_discount_rate=0.2
+            trainer_discount_rate=0.2,
         ),
-
         # 3. Basic - Đã hết hạn - Có HLV
         BasicMember(
             "HV03",
@@ -153,9 +131,8 @@ def init_default_data():
             trainer_map["T02"],
             join_date="01/08/2026",
             expiry_date="01/09/2026",
-            discount_rate=0.0
+            discount_rate=0.0,
         ),
-
         # 4. Premium - Đã hết hạn - Không có HLV
         PremiumMember(
             "HV04",
@@ -164,9 +141,8 @@ def init_default_data():
             plan_map["P03"],
             None,
             join_date="01/05/2026",
-            expiry_date="01/08/2026"
+            expiry_date="01/08/2026",
         ),
-
         # 5. Basic - Sắp hết hạn (còn 4 ngày) - Không có HLV
         BasicMember(
             "HV05",
@@ -176,9 +152,8 @@ def init_default_data():
             None,
             join_date=day(-86),
             expiry_date=day(4),
-            discount_rate=0.1
+            discount_rate=0.1,
         ),
-
         # 6. Premium - Sắp hết hạn (còn 3 ngày) - Có HLV
         PremiumMember(
             "HV06",
@@ -187,8 +162,8 @@ def init_default_data():
             plan_map["P01"],
             trainer_map["T03"],
             join_date=day(-27),
-            expiry_date=day(3)
-        )
+            expiry_date=day(3),
+        ),
     ]
 
     member_map = {m.member_id: m for m in members}
@@ -207,7 +182,7 @@ def init_default_data():
                 member.calculate_membership_fee(),
                 "Đăng ký mới",
                 member.plan.plan_name,
-                member.join_date.strftime("%d/%m/%Y %H:%M:%S")
+                member.join_date.strftime("%d/%m/%Y %H:%M:%S"),
             )
         )
 
@@ -224,7 +199,7 @@ def init_default_data():
         WorkoutSession("LT002", "HV02", stamp(-15, "18:00:00"), "Tập thể hình VIP"),
         WorkoutSession("LT003", "HV01", stamp(-10, "17:00:00"), "Tập cơ bụng"),
         WorkoutSession("LT004", "HV03", "15/08/2026 06:30:00", "Tập Yoga"),
-        WorkoutSession("LT005", "HV06", stamp(-5, "18:00:00"), "Tập Fitness")
+        WorkoutSession("LT005", "HV06", stamp(-5, "18:00:00"), "Tập Fitness"),
     ]
 
     # ------------------------------
@@ -236,7 +211,7 @@ def init_default_data():
         "trainers": trainers,
         "members": members,
         "transactions": transactions,
-        "workout_sessions": workout_sessions
+        "workout_sessions": workout_sessions,
     }
 
     return data
@@ -245,6 +220,7 @@ def init_default_data():
 # ==========================================================
 # 3. LƯU DỮ LIỆU JSON
 # ==========================================================
+
 
 def save_data(data, filename=DATA_FILE):
     """
@@ -256,30 +232,11 @@ def save_data(data, filename=DATA_FILE):
     """
 
     json_data = {
-        "plans": [
-            plan.to_dict()
-            for plan in data["plans"]
-        ],
-
-        "trainers": [
-            trainer.to_dict()
-            for trainer in data["trainers"]
-        ],
-
-        "members": [
-            member.to_dict()
-            for member in data["members"]
-        ],
-
-        "transactions": [
-            transaction.to_dict()
-            for transaction in data["transactions"]
-        ],
-
-        "workout_sessions": [
-            session.to_dict()
-            for session in data["workout_sessions"]
-        ]
+        "plans": [plan.to_dict() for plan in data["plans"]],
+        "trainers": [trainer.to_dict() for trainer in data["trainers"]],
+        "members": [member.to_dict() for member in data["members"]],
+        "transactions": [transaction.to_dict() for transaction in data["transactions"]],
+        "workout_sessions": [session.to_dict() for session in data["workout_sessions"]],
     }
 
     # Tạo thư mục nếu đường dẫn có chứa thư mục chưa tồn tại
@@ -291,21 +248,11 @@ def save_data(data, filename=DATA_FILE):
     try:
         # Tạo file tạm cùng thư mục với file chính
         with tempfile.NamedTemporaryFile(
-            mode="w",
-            encoding="utf-8",
-            suffix=".tmp",
-            dir=folder,
-            delete=False
+            mode="w", encoding="utf-8", suffix=".tmp", dir=folder, delete=False
         ) as file:
-
             temp_path = file.name  # gán ngay để còn xóa được nếu dump lỗi
 
-            json.dump(
-                json_data,
-                file,
-                ensure_ascii=False,
-                indent=4
-            )
+            json.dump(json_data, file, ensure_ascii=False, indent=4)
 
         # Thay thế file cũ bằng file mới
         os.replace(temp_path, filename)
@@ -313,19 +260,17 @@ def save_data(data, filename=DATA_FILE):
         print(f"Đã lưu dữ liệu thành công vào {filename}")
 
     except (OSError, TypeError, KeyError, ValueError) as error:
-
         # Xóa file tạm nếu quá trình lưu gặp lỗi
         if temp_path and os.path.exists(temp_path):
             os.remove(temp_path)
 
-        raise RuntimeError(
-            f"Lỗi khi lưu dữ liệu JSON: {error}"
-        ) from error
+        raise RuntimeError(f"Lỗi khi lưu dữ liệu JSON: {error}") from error
 
 
 # ==========================================================
 # 4. ĐỌC DỮ LIỆU JSON
 # ==========================================================
+
 
 def load_data(filename=DATA_FILE):
     """
@@ -355,29 +300,17 @@ def load_data(filename=DATA_FILE):
         # Khôi phục danh sách Plan
         # ------------------------------
 
-        plans = [
-            Plan.from_dict(item)
-            for item in json_data.get("plans", [])
-        ]
+        plans = [Plan.from_dict(item) for item in json_data.get("plans", [])]
 
-        plan_map = {
-            plan.plan_id: plan
-            for plan in plans
-        }
+        plan_map = {plan.plan_id: plan for plan in plans}
 
         # ------------------------------
         # Khôi phục danh sách Trainer
         # ------------------------------
 
-        trainers = [
-            Trainer.from_dict(item)
-            for item in json_data.get("trainers", [])
-        ]
+        trainers = [Trainer.from_dict(item) for item in json_data.get("trainers", [])]
 
-        trainer_map = {
-            trainer.trainer_id: trainer
-            for trainer in trainers
-        }
+        trainer_map = {trainer.trainer_id: trainer for trainer in trainers}
 
         # ------------------------------
         # Khôi phục danh sách Member
@@ -386,7 +319,6 @@ def load_data(filename=DATA_FILE):
         members = []
 
         for item in json_data.get("members", []):
-
             member_type = item.get("type", "Basic")
 
             if member_type == "Premium":
@@ -396,9 +328,7 @@ def load_data(filename=DATA_FILE):
                 member = BasicMember.from_dict(item)
 
             else:
-                raise ValueError(
-                    f"Loại hội viên không hợp lệ: {member_type}"
-                )
+                raise ValueError(f"Loại hội viên không hợp lệ: {member_type}")
 
             # Liên kết lại Plan dùng chung
             plan_id = item["plan"]["plan_id"]
@@ -414,7 +344,6 @@ def load_data(filename=DATA_FILE):
             trainer_data = item.get("trainer")
 
             if trainer_data:
-
                 trainer_id = trainer_data["trainer_id"]
 
                 if trainer_id not in trainer_map:
@@ -434,8 +363,7 @@ def load_data(filename=DATA_FILE):
         # ------------------------------
 
         transactions = [
-            Transaction.from_dict(item)
-            for item in json_data.get("transactions", [])
+            Transaction.from_dict(item) for item in json_data.get("transactions", [])
         ]
 
         # ------------------------------
@@ -456,7 +384,7 @@ def load_data(filename=DATA_FILE):
             "trainers": trainers,
             "members": members,
             "transactions": transactions,
-            "workout_sessions": workout_sessions
+            "workout_sessions": workout_sessions,
         }
 
         print(f"Đã đọc dữ liệu thành công từ {filename}")
@@ -464,15 +392,13 @@ def load_data(filename=DATA_FILE):
         return data
 
     except (OSError, json.JSONDecodeError, KeyError, TypeError, ValueError) as error:
-
-        raise RuntimeError(
-            f"Không thể đọc dữ liệu JSON: {error}"
-        ) from error
+        raise RuntimeError(f"Không thể đọc dữ liệu JSON: {error}") from error
 
 
 # ==========================================================
 # 5. XUẤT BÁO CÁO CSV
 # ==========================================================
+
 
 def export_report_csv(data, filename="bao_cao_hoi_vien.csv"):
     """
@@ -504,25 +430,16 @@ def export_report_csv(data, filename="bao_cao_hoi_vien.csv"):
     total_payment = {}
 
     for session in workout_sessions:
-
         member_id = session.member_id
 
-        workout_count[member_id] = (
-            workout_count.get(member_id, 0) + 1
-        )
+        workout_count[member_id] = workout_count.get(member_id, 0) + 1
 
     for transaction in transactions:
-
         member_id = transaction.member_id
 
-        transaction_count[member_id] = (
-            transaction_count.get(member_id, 0) + 1
-        )
+        transaction_count[member_id] = transaction_count.get(member_id, 0) + 1
 
-        total_payment[member_id] = (
-            total_payment.get(member_id, 0)
-            + transaction.amount
-        )
+        total_payment[member_id] = total_payment.get(member_id, 0) + transaction.amount
 
     # ------------------------------
     # Các cột trong file CSV
@@ -543,7 +460,7 @@ def export_report_csv(data, filename="bao_cao_hoi_vien.csv"):
         "Phi hoi vien",
         "So luot tap",
         "So giao dich",
-        "Tong tien giao dich"
+        "Tong tien giao dich",
     ]
 
     # ------------------------------
@@ -551,80 +468,39 @@ def export_report_csv(data, filename="bao_cao_hoi_vien.csv"):
     # ------------------------------
 
     try:
-        with open(
-            filename,
-            mode="w",
-            newline="",
-            encoding="utf-8-sig"
-        ) as file:
-
-            writer = csv.DictWriter(
-                file,
-                fieldnames=fieldnames
-            )
+        with open(filename, mode="w", newline="", encoding="utf-8-sig") as file:
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
 
             writer.writeheader()
 
             for member in members:
-
                 trainer = member.trainer
 
-                writer.writerow({
-
-                    "Ma hoi vien": member.member_id,
-
-                    "Ho ten": member.full_name,
-
-                    "So dien thoai": member.phone_number,
-
-                    "Loai hoi vien": member.get_member_type(),
-
-                    "Ma goi tap": member.plan.plan_id,
-
-                    "Ten goi tap": member.plan.plan_name,
-
-                    "Ma huan luyen vien": (
-                        trainer.trainer_id if trainer else ""
-                    ),
-
-                    "Ten huan luyen vien": (
-                        trainer.full_name if trainer else "Tu tap"
-                    ),
-
-                    "Ngay tham gia": (
-                        member.join_date.strftime("%d/%m/%Y")
-                    ),
-
-                    "Ngay het han": (
-                        member.expiry_date.strftime("%d/%m/%Y")
-                    ),
-
-                    "Trang thai": (
-                        "Con han" if member.is_active()
-                        else "Het han"
-                    ),
-
-                    "Phi hoi vien": member.calculate_membership_fee(),
-
-                    "So luot tap": workout_count.get(
-                        member.member_id, 0
-                    ),
-
-                    "So giao dich": transaction_count.get(
-                        member.member_id, 0
-                    ),
-
-                    "Tong tien giao dich": total_payment.get(
-                        member.member_id, 0
-                    )
-                })
+                writer.writerow(
+                    {
+                        "Ma hoi vien": member.member_id,
+                        "Ho ten": member.full_name,
+                        "So dien thoai": member.phone_number,
+                        "Loai hoi vien": member.get_member_type(),
+                        "Ma goi tap": member.plan.plan_id,
+                        "Ten goi tap": member.plan.plan_name,
+                        "Ma huan luyen vien": (trainer.trainer_id if trainer else ""),
+                        "Ten huan luyen vien": (
+                            trainer.full_name if trainer else "Tu tap"
+                        ),
+                        "Ngay tham gia": (member.join_date.strftime("%d/%m/%Y")),
+                        "Ngay het han": (member.expiry_date.strftime("%d/%m/%Y")),
+                        "Trang thai": ("Con han" if member.is_active() else "Het han"),
+                        "Phi hoi vien": member.calculate_membership_fee(),
+                        "So luot tap": workout_count.get(member.member_id, 0),
+                        "So giao dich": transaction_count.get(member.member_id, 0),
+                        "Tong tien giao dich": total_payment.get(member.member_id, 0),
+                    }
+                )
 
         print(f"Đã xuất báo cáo thành công: {filename}")
 
         return filename
 
     except (OSError, csv.Error, KeyError, AttributeError, TypeError) as error:
-
-        raise RuntimeError(
-            f"Lỗi khi xuất báo cáo CSV: {error}"
-        ) from error
+        raise RuntimeError(f"Lỗi khi xuất báo cáo CSV: {error}") from error

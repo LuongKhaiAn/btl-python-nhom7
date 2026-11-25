@@ -344,7 +344,9 @@ class Member(ABC):
         elif isinstance(value, datetime):
             self._join_date = value
         else:
-            raise ValueError("Ngày tham gia phải là đối tượng datetime hoặc chuỗi định dạng dd/mm/yyyy.")
+            raise ValueError(
+                "Ngày tham gia phải là đối tượng datetime hoặc chuỗi định dạng dd/mm/yyyy."
+            )
 
     @property
     def expiry_date(self) -> datetime:
@@ -360,10 +362,14 @@ class Member(ABC):
         elif isinstance(value, datetime):
             self._expiry_date = value
         else:
-            raise ValueError("Ngày hết hạn phải là đối tượng datetime hoặc chuỗi định dạng dd/mm/yyyy.")
+            raise ValueError(
+                "Ngày hết hạn phải là đối tượng datetime hoặc chuỗi định dạng dd/mm/yyyy."
+            )
 
     # --- Nghiệp vụ kiểm tra hạn & gia hạn khớp đề bài ---
-    def check_expiry(self, current_date: Optional[Union[datetime, date]] = None) -> bool:
+    def check_expiry(
+        self, current_date: Optional[Union[datetime, date]] = None
+    ) -> bool:
         """
         Kiểm tra trạng thái hạn sử dụng của hội viên khớp yêu cầu đề bài.
         Trả về True nếu còn hạn (expiry_date >= current_date), False nếu đã hết hạn.
@@ -484,7 +490,9 @@ class BasicMember(Member):
         except (ValueError, TypeError):
             raise ValueError("Tỷ lệ giảm giá (discount_rate) phải là số thực.")
         if not (0.0 <= val_float <= 1.0):
-            raise ValueError("Tỷ lệ giảm giá phải nằm trong khoảng từ 0.0 đến 1.0 (0% - 100%).")
+            raise ValueError(
+                "Tỷ lệ giảm giá phải nằm trong khoảng từ 0.0 đến 1.0 (0% - 100%)."
+            )
         self._discount_rate = val_float
 
     def get_member_type(self) -> str:
@@ -591,7 +599,9 @@ class PremiumMember(Member):
         try:
             val_float = float(value)
         except (ValueError, TypeError):
-            raise ValueError("Tỷ lệ giảm giá HLV (trainer_discount_rate) phải là số thực.")
+            raise ValueError(
+                "Tỷ lệ giảm giá HLV (trainer_discount_rate) phải là số thực."
+            )
         if not (0.0 <= val_float <= 1.0):
             raise ValueError("Tỷ lệ giảm giá HLV phải nằm trong khoảng từ 0.0 đến 1.0.")
         self._trainer_discount_rate = val_float
@@ -600,7 +610,9 @@ class PremiumMember(Member):
         return "Premium"
 
     def calculate_membership_fee(self) -> float:
-        base_cost = self._plan.price + (self._vip_perks_fee * self._plan.duration_months)
+        base_cost = self._plan.price + (
+            self._vip_perks_fee * self._plan.duration_months
+        )
         trainer_cost = (
             self._trainer.monthly_fee
             * self._plan.duration_months

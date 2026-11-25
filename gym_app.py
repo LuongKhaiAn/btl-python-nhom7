@@ -27,9 +27,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 
-import data_handler                           # noqa: E402  (Thành/Lương: JSON + CSV)
-from long_crud import LongGymManager          # noqa: E402  (kế thừa GymManager của An)
-from gym_analytics import GymAnalyticsMixin   # noqa: E402
+import data_handler
+from gym_analytics import GymAnalyticsMixin
+from long_crud import LongGymManager
 
 
 class FullGymManager(GymAnalyticsMixin, LongGymManager):
@@ -127,7 +127,7 @@ def main():
             print(f"Dữ liệu không hợp lệ: {err}")
         except (KeyboardInterrupt, EOFError):
             raise
-        except Exception as err:  # noqa: BLE001
+        except Exception as err:
             print(f"Có lỗi xảy ra: {err}")
             if os.environ.get("GYM_DEBUG"):
                 raise

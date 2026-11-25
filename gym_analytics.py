@@ -116,7 +116,8 @@ class GymAnalyticsMixin:
                 return []
             # Mã: khớp CHÍNH XÁC (HV1 không ra HV10); tên và SĐT: khớp gần đúng (chuỗi con)
             ket_qua = [
-                m for m in self.members
+                m
+                for m in self.members
                 if tu_khoa == str(getattr(m, "member_id", "")).casefold()
                 or tu_khoa in str(getattr(m, "full_name", "")).casefold()
                 or tu_khoa in str(getattr(m, "phone_number", "")).casefold()
@@ -130,11 +131,17 @@ class GymAnalyticsMixin:
             print("1. Basic Member")
             print("2. Premium Member")
             loai = _nhap_lua_chon("Chọn loại hội viên (1-2): ", {"1", "2"})
-            ket_qua = [m for m in self.members if _loai_hoi_vien(m) == ("basic" if loai == "1" else "premium")]
+            ket_qua = [
+                m
+                for m in self.members
+                if _loai_hoi_vien(m) == ("basic" if loai == "1" else "premium")
+            ]
         else:
             print("\nCác gói tập đang có:")
             for plan in getattr(self, "plans", []):
-                print(f"- {getattr(plan, 'plan_id', '')}: {getattr(plan, 'plan_name', '')}")
+                print(
+                    f"- {getattr(plan, 'plan_id', '')}: {getattr(plan, 'plan_name', '')}"
+                )
             ma_goi = input("Nhập mã gói muốn lọc (ví dụ P03): ").strip().casefold()
             if not ma_goi:
                 print("Mã gói tập không được để trống!")
@@ -162,7 +169,7 @@ class GymAnalyticsMixin:
         print("1. Tăng dần (A-Z / thấp đến cao / sớm đến muộn)")
         print("2. Giảm dần (Z-A / cao đến thấp / muộn đến sớm)")
         chieu = _nhap_lua_chon("Chọn chiều sắp xếp (1-2): ", {"1", "2"})
-        giam_dan = (chieu == "2")
+        giam_dan = chieu == "2"
 
         if tieu_chi == "1":
             khoa = lambda m: str(getattr(m, "member_id", "")).casefold()
@@ -170,8 +177,9 @@ class GymAnalyticsMixin:
             # Sắp theo từ cuối cùng của họ tên; nếu trùng tên sẽ xét cả họ tên.
             khoa = lambda m: (
                 str(getattr(m, "full_name", "")).split()[-1].casefold()
-                if str(getattr(m, "full_name", "")).split() else "",
-                str(getattr(m, "full_name", "")).casefold()
+                if str(getattr(m, "full_name", "")).split()
+                else "",
+                str(getattr(m, "full_name", "")).casefold(),
             )
         elif tieu_chi == "3":
             khoa = lambda m: _ngay_sap_xep(getattr(m, "expiry_date", None))
@@ -207,7 +215,8 @@ class GymAnalyticsMixin:
             if _gia_tri(record, "member_id") is not None
         }
         so_con_han_da_tap = sum(
-            1 for m in hoi_vien_con_han
+            1
+            for m in hoi_vien_con_han
             if str(getattr(m, "member_id", "")).strip().casefold() in ma_da_tap
         )
         ti_le_tham_gia = so_con_han_da_tap / so_con_han * 100 if so_con_han else 0.0
@@ -222,18 +231,26 @@ class GymAnalyticsMixin:
         print(f"- Basic: {so_basic} | Premium: {so_premium}")
         print(f"- Còn hạn: {so_con_han} | Hết hạn: {so_het_han}")
         print(f"- Tổng lượt tập: {len(_lay_luot_tap(self))}")
-        print(f"- Số hội viên còn hạn đã tham gia tập: {so_con_han_da_tap}/{so_con_han}")
+        print(
+            f"- Số hội viên còn hạn đã tham gia tập: {so_con_han_da_tap}/{so_con_han}"
+        )
         print(f"TỶ LỆ THAM GIA TẬP: {ti_le_tham_gia:.2f}%")
         print(f"Số giao dịch đã ghi nhận: {len(giao_dich)}")
         print(f"DOANH THU THỰC THU: {doanh_thu:,.0f} VNĐ")
 
-        if giao_dich and input("Bạn có muốn xem chi tiết giao dịch? (y/n): ").strip().lower() == "y":
+        if (
+            giao_dich
+            and input("Bạn có muốn xem chi tiết giao dịch? (y/n): ").strip().lower()
+            == "y"
+        ):
             print("\n--- DANH SÁCH GIAO DỊCH ---")
             for gd in giao_dich:
                 if callable(getattr(gd, "display_info", None)):
                     gd.display_info()
                 else:
-                    print(f"Mã HV: {_gia_tri(gd, 'member_id', '?')} | Số tiền: {_gia_tri(gd, 'amount', 0)}")
+                    print(
+                        f"Mã HV: {_gia_tri(gd, 'member_id', '?')} | Số tiền: {_gia_tri(gd, 'amount', 0)}"
+                    )
 
         # Trả kết quả dạng dict phục vụ kiểm thử và tích hợp báo cáo CSV.
         return {
